@@ -1,53 +1,52 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const scenes = [...document.querySelectorAll(".film-scene")];
-  const player = document.querySelector("#filmPlayer");
-  const playButton = document.querySelector("#playFilm");
-  const pauseButton = document.querySelector("#pauseFilm");
-  const replayButton = document.querySelector("#replayFilm");
-  const progressFill = document.querySelector("#progressFill");
-  const sceneCounter = document.querySelector("#sceneCounter");
-  const audio = document.querySelector("#backgroundMusic");
-  const audioButton = document.querySelector("#audioToggle");
+  const player = document.getElementById("filmPlayer");
+  const playButton = document.getElementById("playFilm");
+  const pauseButton = document.getElementById("pauseFilm");
+  const replayButton = document.getElementById("replayFilm");
+  const progressFill = document.getElementById("progressFill");
+  const sceneCounter = document.getElementById("sceneCounter");
 
   let currentScene = 0;
   let timer = null;
-  let startedAt = 0;
-  let remaining = 0;
   let playing = false;
+  let remaining = 0;
+  let startedAt = 0;
 
   const totalDuration = scenes.reduce(
-    (sum, scene) => sum + Number(scene.dataset.duration || 40000),
+    (sum, scene) => sum + Number(scene.dataset.duration),
     0
   );
 
   function updateProgress() {
     const completed = scenes
       .slice(0, currentScene)
-      .reduce((sum, scene) => sum + Number(scene.dataset.duration || 40000), 0);
+      .reduce((sum, scene) => sum + Number(scene.dataset.duration), 0);
 
-    const currentDuration = Number(scenes[currentScene]?.dataset.duration || 40000);
-    const elapsed = currentDuration - remaining;
+    const elapsed = Number(scenes[currentScene].dataset.duration) - remaining;
     const percentage = ((completed + elapsed) / totalDuration) * 100;
 
-    progressFill.style.width = `${Math.min(percentage, 100)}%`;
-    sceneCounter.textContent =
-      `CHAPTER ${String(currentScene + 1).padStart(2, "0")} OF ${String(scenes.length).padStart(2, "0")}`;
+    progressFill.style.width = `${percentage}%`;
   }
 
   function showScene(index) {
-    scenes.forEach((scene, i) => {
-      scene.classList.toggle("active", i === index);
-    });
+    clearTimeout(timer);
+    scenes.forEach((scene, i) => scene.classList.toggle("active", i === index));
 
     currentScene = index;
-    remaining = Number(scenes[index].dataset.duration || 40000);
+    remaining = Number(scenes[index].dataset.duration);
     startedAt = Date.now();
+
+    sceneCounter.textContent = `CHAPTER ${index + 1} OF ${scenes.length}`;
+
     updateProgress();
     timer = setTimeout(nextScene, remaining);
   }
 
   function nextScene() {
+    if (!playing) return;
+
     if (currentScene < scenes.length - 1) {
       showScene(currentScene + 1);
     } else {
@@ -57,82 +56,63 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startFilm() {
     clearTimeout(timer);
+    playing = true;
+    progressFill.style.width = "0%";
+    pauseButton.textContent = "Ⅱ PAUSE";
+
     player.scrollIntoView({ behavior: "smooth", block: "start" });
 
-    playing = true;
-    pauseButton.textContent = "Ⅱ PAUSE";
-    showScene(0);
-
-    if (audio && audio.paused) {
-      audio.play().then(() => {
-        audioButton.textContent = "♫ Music On";
-      }).catch(() => {});
-    }
+    setTimeout(() => {
+      if (playing) showScene(0);
+    }, 500);
   }
 
   function pauseFilm() {
     if (!playing) return;
 
-    clearTimeout(timer);
     remaining -= Date.now() - startedAt;
+    remaining = Math.max(0, remaining);
+    clearTimeout(timer);
     playing = false;
     pauseButton.textContent = "▶ RESUME";
-
-    if (audio) audio.pause();
-    if (audioButton) audioButton.textContent = "♫ Music Off";
+    updateProgress();
   }
 
   function resumeFilm() {
     if (playing) return;
 
+    if (remaining <= 0) {
+      nextScene();
+      return;
+    }
+
     playing = true;
     pauseButton.textContent = "Ⅱ PAUSE";
     startedAt = Date.now();
     timer = setTimeout(nextScene, remaining);
-
-    if (audio) {
-      audio.play().then(() => {
-        audioButton.textContent = "♫ Music On";
-      }).catch(() => {});
-    }
   }
 
   function finishFilm() {
     clearTimeout(timer);
     playing = false;
     scenes.forEach(scene => scene.classList.remove("active"));
+    scenes[scenes.length - 1].classList.add("active");
     progressFill.style.width = "100%";
     sceneCounter.textContent = "THE END · WITH LOVE, ALWAYS";
-    pauseButton.textContent = "Ⅱ PAUSE";
-    document.querySelector(".film-ending").classList.add("active");
+    pauseButton.textContent = "▶ REPLAY";
     remaining = 0;
   }
 
   playButton.addEventListener("click", startFilm);
 
   pauseButton.addEventListener("click", () => {
-    if (playing) {
-      pauseFilm();
-    } else if (remaining > 0) {
-      resumeFilm();
-    }
+    if (playing) pauseFilm();
+    else if (remaining === 0 && currentScene === scenes.length - 1) startFilm();
+    else resumeFilm();
   });
 
   replayButton.addEventListener("click", startFilm);
 
-  audioButton.addEventListener("click", async () => {
-    if (audio.paused) {
-      try {
-        await audio.play();
-        audioButton.textContent = "♫ Music On";
-      } catch (error) {
-        audioButton.textContent = "♫ Music Off";
-      }
-    } else {
-      audio.pause();
-      audioButton.textContent = "♫ Music Off";
-    }
-  });
-
-  document.querySelector("#currentYear").textContent = new Date().getFullYear();
+  document.getElementById("currentYear").textContent =
+    new Date().getFullYear();
 });

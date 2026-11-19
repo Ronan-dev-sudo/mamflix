@@ -118,9 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateProgress();
 
-    if (playing) {
-      timer = setTimeout(nextScene, remaining);
-    }
+    if (playing) timer = setTimeout(nextScene, remaining);
   }
 
   function nextScene() {
@@ -135,14 +133,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startFilm() {
     clearTimeout(timer);
+    player.classList.add("film-open");
     playing = true;
     startMusic();
     pauseButton.textContent = "Ⅱ PAUSE";
-    player.scrollIntoView({ behavior: "smooth", block: "start" });
-
-    setTimeout(() => {
-      if (playing) showScene(0);
-    }, 400);
+    showScene(0);
   }
 
   function pauseFilm() {
@@ -175,8 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function goBack() {
-    if (currentScene === 0) return;
-    showScene(currentScene - 1);
+    if (currentScene > 0) showScene(currentScene - 1);
   }
 
   function finishFilm() {

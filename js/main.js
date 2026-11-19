@@ -9,18 +9,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const progressFill = document.getElementById("progressFill");
   const sceneCounter = document.getElementById("sceneCounter");
 
+  if (!scenes.length || !player) return;
+
   let currentScene = 0;
   let timer = null;
   let progressTimer = null;
   let playing = false;
   let remaining = 0;
   let startedAt = 0;
+
   let audioContext = null;
   let musicOn = false;
   let musicTimer = null;
   let noteIndex = 0;
 
-  const durations = scenes.map(scene => Number(scene.dataset.duration));
+  const durations = scenes.map(scene =>
+    Number(scene.dataset.duration) || 10000
+  );
+
   const totalDuration = durations.reduce((a, b) => a + b, 0);
 
   const notes = [
@@ -31,11 +37,17 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   // MUSIC CONTROL
+
+  const controls = player.querySelector(".film-controls");
   const musicButton = document.createElement("button");
+
   musicButton.textContent = "♫ MUSIC OFF";
   musicButton.className = "film-control";
   musicButton.type = "button";
-  player.querySelector(".film-controls").appendChild(musicButton);
+
+  if (controls) {
+    controls.appendChild(musicButton);
+  }
 
   function playNote(frequency, time) {
     if (!audioContext || !musicOn) return;
@@ -68,14 +80,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     noteIndex++;
+
     musicTimer = setTimeout(musicStep, 3000);
   }
 
   async function startMusic() {
     try {
       if (!audioContext) {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const AudioContext =
+          window.AudioContext || window.webkitAudioContext;
+
         if (!AudioContext) return;
+
         audioContext = new AudioContext();
       }
 
@@ -86,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       clearTimeout(musicTimer);
       musicStep();
+
     } catch (error) {
       musicOn = false;
       musicButton.textContent = "♫ MUSIC OFF";
@@ -94,43 +111,66 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function stopMusic() {
     musicOn = false;
+
     clearTimeout(musicTimer);
+
     musicButton.textContent = "♫ MUSIC OFF";
   }
 
   musicButton.addEventListener("click", () => {
-    if (musicOn) stopMusic();
-    else startMusic();
+    if (musicOn) {
+      stopMusic();
+    } else {
+      startMusic();
+    }
   });
 
-  // FILM PROGRESS
+  // ACCURATE FILM PROGRESS
+
+  function getCurrentRemaining() {
+    if (!playing) return remaining;
+
+    const elapsed = Date.now() - startedAt;
+
+    return Math.max(0, remaining - elapsed);
+  }
+
   function updateProgress() {
     const completed = durations
       .slice(0, currentScene)
       .reduce((a, b) => a + b, 0);
 
-    const elapsed = durations[currentScene] - remaining;
-    const percentage = ((completed + elapsed) / totalDuration) * 100;
+    const timeLeft = getCurrentRemaining();
+    const elapsed = durations[currentScene] - timeLeft;
 
-    progressFill.style.width = `${Math.min(100, percentage)}%`;
+    const percentage =
+      ((completed + elapsed) / totalDuration) * 100;
+
+    if (progressFill) {
+      progressFill.style.width =
+        `${Math.min(100, Math.max(0, percentage))}%`;
+    }
   }
 
   function startProgress() {
     clearInterval(progressTimer);
 
     progressTimer = setInterval(() => {
-      if (!playing) return;
-
-      remaining = Math.max(0, remaining - 100);
       updateProgress();
     }, 100);
   }
 
   // SCENE TRANSITIONS
+
   function showScene(index) {
     clearTimeout(timer);
+    clearInterval(progressTimer);
 
-    currentScene = Math.max(0, Math.min(index, scenes.length - 1));
+    currentScene = Math.max(
+      0,
+      Math.min(index, scenes.length - 1)
+    );
+
     remaining = durations[currentScene];
     startedAt = Date.now();
 
@@ -138,13 +178,15 @@ document.addEventListener("DOMContentLoaded", () => {
       scene.classList.toggle("active", i === currentScene);
     });
 
-    sceneCounter.textContent = "A FILM MADE WITH LOVE";
+    if (sceneCounter) {
+      sceneCounter.textContent = "A FILM MADE WITH LOVE";
+    }
 
     updateProgress();
-    startProgress();
 
     if (playing) {
       timer = setTimeout(nextScene, remaining);
+      startProgress();
     }
   }
 
@@ -158,7 +200,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // PLAY, PAUSE AND REPLAY
+  // PLAY
+
   function startFilm() {
     clearTimeout(timer);
     clearInterval(progressTimer);
@@ -166,29 +209,38 @@ document.addEventListener("DOMContentLoaded", () => {
     player.classList.add("film-open");
 
     playing = true;
-    pauseButton.textContent = "Ⅱ PAUSE";
 
-    if (!musicOn) startMusic();
+    if (pauseButton) {
+      pauseButton.textContent = "Ⅱ PAUSE";
+    }
+
+    if (!musicOn) {
+      startMusic();
+    }
 
     showScene(0);
   }
 
+  // PAUSE
+
   function pauseFilm() {
     if (!playing) return;
 
-    remaining = Math.max(
-      0,
-      remaining - (Date.now() - startedAt)
-    );
+    remaining = getCurrentRemaining();
 
     clearTimeout(timer);
     clearInterval(progressTimer);
 
     playing = false;
-    pauseButton.textContent = "▶ RESUME";
+
+    if (pauseButton) {
+      pauseButton.textContent = "▶ RESUME";
+    }
 
     updateProgress();
   }
+
+  // RESUME
 
   function resumeFilm() {
     if (playing) return;
@@ -200,23 +252,32 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         startFilm();
       }
+
       return;
     }
 
     playing = true;
     startedAt = Date.now();
 
-    pauseButton.textContent = "Ⅱ PAUSE";
+    if (pauseButton) {
+      pauseButton.textContent = "Ⅱ PAUSE";
+    }
 
     timer = setTimeout(nextScene, remaining);
+
     startProgress();
+    updateProgress();
   }
+
+  // GO BACK
 
   function goBack() {
     if (currentScene <= 0) return;
 
     showScene(currentScene - 1);
   }
+
+  // FILM FINALE
 
   function finishFilm() {
     clearTimeout(timer);
@@ -225,25 +286,54 @@ document.addEventListener("DOMContentLoaded", () => {
     playing = false;
     remaining = 0;
 
-    scenes.forEach(scene => scene.classList.remove("active"));
+    scenes.forEach(scene => {
+      scene.classList.remove("active");
+    });
+
     scenes[scenes.length - 1].classList.add("active");
 
-    progressFill.style.width = "100%";
-    sceneCounter.textContent = "WITH ALL OUR LOVE, ALWAYS";
+    if (progressFill) {
+      progressFill.style.width = "100%";
+    }
 
-    pauseButton.textContent = "▶ REPLAY";
+    if (sceneCounter) {
+      sceneCounter.textContent = "WITH ALL OUR LOVE, ALWAYS";
+    }
+
+    if (pauseButton) {
+      pauseButton.textContent = "▶ REPLAY";
+    }
   }
 
-  playButton.addEventListener("click", startFilm);
-  replayButton.addEventListener("click", startFilm);
-  backButton.addEventListener("click", goBack);
+  // BUTTON EVENTS
 
-  pauseButton.addEventListener("click", () => {
-    if (playing) pauseFilm();
-    else resumeFilm();
-  });
+  if (playButton) {
+    playButton.addEventListener("click", startFilm);
+  }
 
-  document.getElementById("currentYear").textContent =
-    new Date().getFullYear();
+  if (replayButton) {
+    replayButton.addEventListener("click", startFilm);
+  }
+
+  if (backButton) {
+    backButton.addEventListener("click", goBack);
+  }
+
+  if (pauseButton) {
+    pauseButton.addEventListener("click", () => {
+      if (playing) {
+        pauseFilm();
+      } else {
+        resumeFilm();
+      }
+    });
+  }
+
+  // FOOTER YEAR
+
+  const yearElement = document.getElementById("currentYear");
+
+  if (yearElement) {
+    yearElement.textContent = new Date().getFullYear();
+  }
 });
-

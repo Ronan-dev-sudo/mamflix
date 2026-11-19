@@ -4,242 +4,195 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#160b20">
-  <title>MAMFLIX | The Story of Her</title>
+  <meta name="theme-color" content="#f8eaf0">
+  <title>MAMFLIX | Made With Love</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/style.css">
-
-  <style>
-    .film-ending {
-      position: relative;
-      overflow: hidden;
-      padding: 30px 15px;
-    }
-
-    .final-photo {
-      width: min(250px, 70%);
-      height: 270px;
-      object-fit: cover;
-      object-position: center;
-      border-radius: 130px 130px 12px 12px;
-      border: 1px solid rgba(239,200,220,.65);
-      box-shadow: 0 0 45px rgba(220,157,197,.2);
-      margin: 0 auto 25px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .birthday-label {
-      color: #e8bed6;
-      font-size: 10px;
-      letter-spacing: 5px;
-      margin-bottom: 12px;
-    }
-
-    .final-signature {
-      color: #eac5d9;
-      font-family: "Cormorant Garamond", serif;
-      font-size: 22px;
-      font-style: italic;
-      margin-top: 20px;
-    }
-
-    .flower {
-      position: absolute;
-      bottom: -60px;
-      color: #e9b8d0;
-      opacity: 0;
-      font-size: 30px;
-      pointer-events: none;
-      animation: flowerRise 9s ease-in infinite;
-    }
-
-    .flower-one { left: 12%; animation-delay: 0s; }
-    .flower-two { left: 30%; animation-delay: 2s; font-size: 22px; }
-    .flower-three { left: 72%; animation-delay: 1s; font-size: 35px; }
-    .flower-four { left: 88%; animation-delay: 3s; font-size: 24px; }
-    .flower-five { left: 50%; animation-delay: 4s; font-size: 20px; }
-
-    @keyframes flowerRise {
-      0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-      15% { opacity: .65; }
-      85% { opacity: .5; }
-      100% { transform: translateY(-600px) rotate(180deg); opacity: 0; }
-    }
-  </style>
 </head>
 
 <body>
   <div class="ambient-background"></div>
+  <div class="floating-light light-one"></div>
+  <div class="floating-light light-two"></div>
+  <div class="floating-light light-three"></div>
 
   <nav class="navbar">
     <a href="#home" class="logo">MAM<span>FLIX</span></a>
-    <span class="film-label">A SPECIAL BIRTHDAY EDITION</span>
+    <span class="film-label">A FILM MADE WITH LOVE</span>
   </nav>
 
   <main>
+    <!-- OPENING EXPERIENCE -->
     <section class="hero" id="home">
+      <div class="hero-glow"></div>
+
       <div class="hero-content">
         <p class="eyebrow">A MAMFLIX ORIGINAL</p>
-        <p class="special-edition">A SPECIAL BIRTHDAY EDITION</p>
-        <h1>The Story<br>of <span>Her.</span></h1>
+
+        <p class="special-edition">A CELEBRATION OF A BEAUTIFUL LIFE</p>
+
+        <h1>For Mam,<br><span>with love.</span></h1>
 
         <p class="tagline">
-          A beautiful life. A remarkable woman.
-          A song that continues.
-        </p>
-
-        <p class="hero-description">
-          Some lives are more than stories.
-          They become testimonies, melodies and beautiful
-          reminders of what it means to live a life of purpose.
-          Today, we celebrate hers.
+          A life that has touched hearts.
+          A love that deserves to be celebrated.
+          A story still unfolding.
         </p>
 
         <div class="hero-buttons">
-          <button class="btn btn-primary" id="playFilm">▶ PLAY FILM</button>
+          <button class="btn btn-primary" id="playFilm">
+            <span class="play-icon">▶</span>
+            PLAY FILM
+          </button>
         </div>
+
+        <p class="hero-note">A little something, made especially for you.</p>
       </div>
 
-      <div class="scroll-indicator">A STORY TOLD WITH LOVE ↓</div>
+      <div class="scroll-indicator">MADE WITH LOVE · FOR YOU</div>
     </section>
 
+    <!-- THE FILM -->
     <section class="film-player" id="filmPlayer" aria-live="polite">
 
       <div class="film-progress">
         <div class="progress-track">
           <div class="progress-fill" id="progressFill"></div>
         </div>
-        <p id="sceneCounter">THE STORY BEGINS</p>
+        <p id="sceneCounter">A STORY MADE WITH LOVE</p>
       </div>
 
+      <!-- SCENE ONE -->
       <div class="film-scene active" data-duration="8000">
-        <p class="scene-kicker">CHAPTER ONE</p>
-        <h2>The Woman.</h2>
-        <p class="scene-text">
-          Before the titles, the ministry and the moments
-          that so many people have come to know,
-          there is a woman.
-        </p>
-        <p class="scene-text">
-          A life, a heart, a journey and a beautiful story
-          that deserves to be celebrated.
-        </p>
+        <div class="scene-copy">
+          <p class="scene-text">
+            Before the titles, the ministry and the moments
+            that so many people have come to know...
+          </p>
+          <p class="scene-text">
+            There is a woman. A heart. A life.
+            And a beautiful story worth celebrating.
+          </p>
+        </div>
       </div>
 
+      <!-- SCENE TWO -->
       <div class="film-scene" data-duration="10000">
-        <p class="scene-kicker">CHAPTER TWO</p>
-        <h2>A Heart of Worship.</h2>
-        <p class="scene-text">
-          Dear Mam, I love how you bring stillness into the room
-          through the essence of your worship.
-        </p>
-        <p class="scene-text">
-          If worship had a name, yours would be called worship.
-        </p>
-        <p class="scene-text">
-          I look up to you in the spaces of musicality because
-          you are such a role model to me, Mam.
-        </p>
+        <div class="scene-copy">
+          <p class="scene-text">
+            Dear Mam, I love how you bring stillness into the room
+            through the essence of your worship.
+          </p>
+          <p class="scene-text">
+            If worship had a name, yours would be called worship.
+          </p>
+          <p class="scene-text">
+            I look up to you in the spaces of musicality because
+            you are such a role model to me, Mam.
+          </p>
+        </div>
       </div>
 
+      <!-- SCENE THREE -->
       <div class="film-scene" data-duration="8000">
-        <p class="scene-kicker">CHAPTER THREE</p>
-        <h2>A Mother's Heart.</h2>
-        <p class="scene-text">
-          There is a kind of love that cannot be measured
-          by words alone.
-        </p>
-        <p class="scene-text">
-          A mother's love. Her tenderness, her strength,
-          her care and the beautiful place she holds
-          in the lives of those she calls family.
-        </p>
+        <div class="scene-copy">
+          <p class="scene-text">
+            There is a kind of love that cannot be measured
+            by words alone.
+          </p>
+          <p class="scene-text">
+            A mother's love. Her tenderness, her strength,
+            her care and the beautiful place she holds
+            in the lives of those she calls family.
+          </p>
+        </div>
       </div>
 
+      <!-- SCENE FOUR -->
       <div class="film-scene" data-duration="8000">
-        <p class="scene-kicker">CHAPTER FOUR</p>
-        <h2>A Life That Touches Lives.</h2>
-        <p class="scene-text">
-          Some lives leave traces of love wherever they go.
-        </p>
-        <p class="scene-text">
-          Through the lives she has touched,
-          the hearts she has encouraged and the
-          people who carry something of her with them,
-          her story continues.
-        </p>
+        <div class="scene-copy">
+          <p class="scene-text">
+            Some lives leave traces of love wherever they go.
+          </p>
+          <p class="scene-text">
+            Through the lives she has touched,
+            the hearts she has encouraged and the people
+            who carry something of her with them,
+            her story continues.
+          </p>
+        </div>
       </div>
 
+      <!-- SCENE FIVE -->
       <div class="film-scene" data-duration="8000">
-        <p class="scene-kicker">CHAPTER FIVE</p>
-        <h2>The Beauty of Her Journey.</h2>
-        <p class="scene-text">
-          Every season has held a lesson.
-          Every chapter has carried its own beauty.
-        </p>
-        <p class="scene-text">
-          And every step has been part of a story
-          still being written.
-        </p>
+        <div class="scene-copy">
+          <p class="scene-text">
+            Every season has held a lesson.
+            Every moment has carried its own beauty.
+          </p>
+          <p class="scene-text">
+            And every step has been part of a story
+            still being written.
+          </p>
+        </div>
       </div>
 
+      <!-- SCENE SIX: PERSONAL LETTERS TO BE ADDED -->
       <div class="film-scene" data-duration="15000">
-        <p class="scene-kicker">CHAPTER SIX</p>
-        <h2>Letters to Mam.</h2>
-        <p class="scene-text">
-          Some things deserve to be said.
-          Some appreciation deserves to be heard.
-        </p>
-        <p class="scene-text">
-          And so, these are words from hearts
-          that are grateful for you.
-        </p>
-        <p class="scene-text">With love, always.</p>
+        <div class="scene-copy">
+          <p class="scene-text">
+            Some words are too precious to leave unspoken.
+          </p>
+          <p class="scene-text">
+            Some love deserves to be expressed,
+            remembered and held close.
+          </p>
+          <p class="scene-text">
+            These are words from hearts that are grateful for you.
+          </p>
+        </div>
       </div>
 
+      <!-- BIRTHDAY FINALE -->
       <div class="film-scene film-ending" data-duration="8000">
+
         <div class="flower flower-one">✿</div>
         <div class="flower flower-two">❀</div>
         <div class="flower flower-three">✿</div>
         <div class="flower flower-four">❀</div>
         <div class="flower flower-five">✿</div>
 
-        <p class="scene-kicker">A MAMFLIX ORIGINAL</p>
+        <div class="finale-content">
+          <img
+            src="assets/photos/WhatsApp%20Image%202026-11-19%20at%2011.38.50%20PM.jpeg"
+            class="final-photo"
+            alt="Pastor Marita Mbae"
+          >
 
-        <img
-          src="assets/photos/WhatsApp%20Image%202026-11-19%20at%2011.38.50%20PM.jpeg"
-          class="final-photo"
-          alt="Pastor Marita Mbae"
-        >
+          <p class="birthday-label">TODAY, AND ALWAYS, WE CELEBRATE YOU</p>
 
-        <p class="birthday-label">TODAY, WE CELEBRATE YOU</p>
-        <h2>Happy Birthday, Mam.</h2>
+          <h2>Happy Birthday, Mam.</h2>
 
-        <p class="scene-text">
-          A beautiful life. A remarkable woman.
-          A song that continues.
-        </p>
+          <p class="scene-text">
+            A beautiful life. A remarkable woman.
+            A love that continues.
+          </p>
 
-        <p class="final-signature">With all our love, always. ♡</p>
+          <p class="final-signature">With all our love, always. ♡</p>
+        </div>
       </div>
 
+      <!-- FILM CONTROLS -->
       <div class="film-controls">
         <button class="film-control" id="backFilm">← BACK</button>
         <button class="film-control" id="pauseFilm">Ⅱ PAUSE</button>
         <button class="film-control" id="replayFilm">↺ REPLAY</button>
       </div>
 
-    </section>
-
-    <section class="closing" id="finale">
-      <p class="section-kicker">WITH LOVE, ALWAYS</p>
-      <h2>Her story continues.</h2>
-      <p>Thank you for the gift of your life, Mam.</p>
     </section>
   </main>
 

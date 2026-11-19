@@ -11,18 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-
   <div class="ambient-background"></div>
 
   <nav class="navbar">
-    <a href="#" class="logo">MAM<span>FLIX</span></a>
-    <ul class="nav-links">
-      <li><a href="#home">Home</a></li>
-      <li><a href="#chapters">Her Story</a></li>
-      <li><a href="#finale">The Finale</a></li>
-    </ul>
+    <a href="#home" class="logo">MAM<span>FLIX</span></a>
+    <span class="film-label">A SPECIAL BIRTHDAY EDITION</span>
   </nav>
 
   <main>
@@ -30,93 +24,136 @@
       <div class="hero-content">
         <p class="eyebrow">A MAMFLIX ORIGINAL</p>
         <p class="special-edition">A SPECIAL BIRTHDAY EDITION</p>
-
         <h1>The Story<br>of <span>Her.</span></h1>
+        <p class="tagline">A beautiful life. A remarkable woman. A song that continues.</p>
+        <p class="hero-description">
+          Some lives are more than stories.
+          They become testimonies, melodies and beautiful
+          reminders of what it means to live a life of purpose.
+          Today, we celebrate hers.
+        </p>
+        <div class="hero-buttons">
+          <button class="btn btn-primary" id="playFilm">▶ PLAY FILM</button>
+        </div>
+      </div>
+      <div class="scroll-indicator">A STORY TOLD WITH LOVE ↓</div>
+    </section>
 
-        <p class="tagline">
+    <section class="film-player" id="filmPlayer" aria-live="polite">
+      <div class="film-progress">
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <p id="sceneCounter">THE STORY BEGINS</p>
+      </div>
+
+      <div class="film-scene active" data-duration="40000">
+        <p class="scene-kicker">CHAPTER ONE</p>
+        <h2>The Woman.</h2>
+        <p class="scene-text">
+          Before the titles, the ministry and the moments
+          that so many people have come to know,
+          there is a woman.
+        </p>
+        <p class="scene-text">
+          A life, a heart, a journey and a beautiful story
+          that deserves to be celebrated.
+        </p>
+      </div>
+
+      <div class="film-scene" data-duration="55000">
+        <p class="scene-kicker">CHAPTER TWO</p>
+        <h2>A Heart of Worship.</h2>
+        <p class="scene-text">
+          There is something beautiful about a life
+          that makes room for the presence of God.
+        </p>
+        <p class="scene-text">
+          Through worship, through song and through
+          devotion, her life has become an offering.
+        </p>
+        <p class="scene-text">
+          A melody that reaches beyond the music.
+        </p>
+      </div>
+
+      <div class="film-scene" data-duration="40000">
+        <p class="scene-kicker">CHAPTER THREE</p>
+        <h2>A Mother's Heart.</h2>
+        <p class="scene-text">
+          There is a kind of love that cannot be measured
+          by words alone.
+        </p>
+        <p class="scene-text">
+          A mother's love. Her tenderness, her strength,
+          her care and the beautiful place she holds
+          in the lives of those she calls family.
+        </p>
+      </div>
+
+      <div class="film-scene" data-duration="40000">
+        <p class="scene-kicker">CHAPTER FOUR</p>
+        <h2>A Life That Touches Lives.</h2>
+        <p class="scene-text">
+          Some lives leave traces of love wherever they go.
+        </p>
+        <p class="scene-text">
+          Through the lives she has touched,
+          the hearts she has encouraged and the
+          people who carry something of her with them,
+          her story continues.
+        </p>
+      </div>
+
+      <div class="film-scene" data-duration="35000">
+        <p class="scene-kicker">CHAPTER FIVE</p>
+        <h2>The Beauty of Her Journey.</h2>
+        <p class="scene-text">
+          Every season has held a lesson.
+          Every chapter has carried its own beauty.
+        </p>
+        <p class="scene-text">
+          And every step has been part of a story
+          still being written.
+        </p>
+      </div>
+
+      <div class="film-scene" data-duration="65000">
+        <p class="scene-kicker">CHAPTER SIX</p>
+        <h2>Letters to Mam.</h2>
+        <p class="scene-text">
+          Some things deserve to be said.
+          Some appreciation deserves to be heard.
+        </p>
+        <p class="scene-text">
+          And so, these are words from hearts
+          that are grateful for you.
+        </p>
+        <p class="scene-text">With love, always.</p>
+      </div>
+
+      <div class="film-scene film-ending" data-duration="25000">
+        <p class="scene-kicker">A MAMFLIX ORIGINAL</p>
+        <h2>Her story continues.</h2>
+        <p class="scene-text">
+          Happy Birthday, Mam.
+        </p>
+        <p class="scene-text">
           A beautiful life. A remarkable woman.
           A song that continues.
         </p>
-
-        <p class="hero-description">
-          Some lives are more than stories.
-          They become testimonies, melodies and
-          beautiful reminders of what it means
-          to live a life of purpose.
-          Today, we celebrate hers.
-        </p>
-
-        <div class="hero-buttons">
-          <a href="#chapters" class="btn btn-primary" id="playFilm">
-            ▶ PLAY FILM
-          </a>
-          <a href="#chapters" class="btn btn-secondary">
-            EXPLORE HER STORY
-          </a>
-        </div>
       </div>
 
-      <div class="scroll-indicator">
-        ↓ &nbsp; DISCOVER HER STORY
-      </div>
-    </section>
-
-    <section class="section" id="chapters">
-      <div class="section-heading">
-        <p class="section-kicker">THE DOCUMENTARY</p>
-        <h2>Every life tells a story.</h2>
-        <p>
-          And hers is one worth celebrating.
-          A journey of faith, love, worship and
-          a life that continues to touch others.
-        </p>
-      </div>
-
-      <div class="chapters-grid">
-
-        <article class="chapter-card">
-          <p class="chapter-number">CHAPTER 01</p>
-          <h3>The Woman</h3>
-          <p>The beautiful person behind the story.</p>
-        </article>
-
-        <article class="chapter-card">
-          <p class="chapter-number">CHAPTER 02</p>
-          <h3>A Heart of Worship</h3>
-          <p>A life poured out in worship and devotion.</p>
-        </article>
-
-        <article class="chapter-card">
-          <p class="chapter-number">CHAPTER 03</p>
-          <h3>A Mother's Heart</h3>
-          <p>A love and a bond that words cannot contain.</p>
-        </article>
-
-        <article class="chapter-card">
-          <p class="chapter-number">CHAPTER 04</p>
-          <h3>A Life That Touches Lives</h3>
-          <p>The people, the ministry and the impact.</p>
-        </article>
-
-        <article class="chapter-card">
-          <p class="chapter-number">CHAPTER 05</p>
-          <h3>The Beauty of Her Journey</h3>
-          <p>Every season has added something beautiful.</p>
-        </article>
-
-        <article class="chapter-card">
-          <p class="chapter-number">CHAPTER 06</p>
-          <h3>Letters to Mam</h3>
-          <p>Words from the hearts of those who love her.</p>
-        </article>
-
+      <div class="film-controls">
+        <button class="film-control" id="pauseFilm">Ⅱ PAUSE</button>
+        <button class="film-control" id="replayFilm">↺ REPLAY</button>
       </div>
     </section>
 
     <section class="closing" id="finale">
       <p class="section-kicker">WITH LOVE, ALWAYS</p>
-      <h2>Her story continues.</h2>
-      <p>A beautiful life. A remarkable woman.</p>
+      <h2>Happy Birthday, Mam.</h2>
+      <p>Thank you for the gift of your life.</p>
     </section>
   </main>
 
@@ -129,10 +166,7 @@
     <source src="assets/audio/gentle-piano.mp3" type="audio/mpeg">
   </audio>
 
-  <button class="audio-toggle" id="audioToggle">
-    ♫ Music Off
-  </button>
-
+  <button class="audio-toggle" id="audioToggle">♫ Music Off</button>
   <script src="js/main.js"></script>
 </body>
 </html>

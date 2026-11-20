@@ -1,192 +1,296 @@
 
 document.addEventListener("DOMContentLoaded", () => {
-  const scenes = [...document.querySelectorAll(".film-scene")];
+  const scenes = Array.from(document.querySelectorAll(".film-scene"));
   const player = document.getElementById("filmPlayer");
+
   const playButton = document.getElementById("playFilm");
   const pauseButton = document.getElementById("pauseFilm");
   const replayButton = document.getElementById("replayFilm");
   const backButton = document.getElementById("backFilm");
+
   const progressFill = document.getElementById("progressFill");
   const sceneCounter = document.getElementById("sceneCounter");
 
-  if (!scenes.length || !player) return;
+  if (!player || scenes.length === 0) {
+    console.error("MAMFLIX could not find its film scenes.");
+    return;
+  }
 
   let currentScene = 0;
-  let timer = null;
-  let progressTimer = null;
   let playing = false;
-  let remaining = 0;
+  let remainingTime = 0;
   let startedAt = 0;
+  let sceneTimer = null;
+  let progressTimer = null;
 
+  const durations = scenes.map(scene => {
+    return Number(scene.dataset.duration) || 12000;
+  });
+
+  const totalDuration = durations.reduce((sum, duration) => sum + duration, 0);
+
+  // Expected video filenames in assets/videos/
+  const videoSources = {
+    singing: "assets/videos/singing.mp4",
+    ministration: "assets/videos/ministration.mp4",
+    teaching: "assets/videos/teaching.mp4",
+    joy: "assets/videos/joy.mp4"
+  };
+
+  const videos = Array.from(document.querySelectorAll(".scene-video"));
+
+  // Connect the video clips. Missing clips will simply remain hidden.
+  videos.forEach(video => {
+    const videoName = video.dataset.video;
+    const source = videoSources[videoName];
+    const frame = video.closest(".video-frame");
+
+    if (!source) {
+      if (frame) frame.hidden = true;
+      return;
+    }
+
+    video.addEventListener("error", () => {
+      if (frame) frame.hidden = true;
+    });
+
+    video.addEventListener("loadeddata", () => {
+      if (frame) frame.hidden = false;
+    });
+
+    video.src = source;
+    video.load();
+  });
+
+  // Ambient music
   let audioContext = null;
   let musicOn = false;
-  let musicTimer = null;
-  let noteIndex = 0;
+  let musicButton = null;
+  let musicNodes = [];
 
-  const durations = scenes.map(scene =>
-    Number(scene.dataset.duration) || 10000
-  );
-
-  const totalDuration = durations.reduce((a, b) => a + b, 0);
-
-  const notes = [
+  const chords = [
     [261.63, 329.63, 392.00],
     [220.00, 261.63, 329.63],
     [174.61, 220.00, 261.63],
     [196.00, 246.94, 293.66]
   ];
 
-  // MUSIC CONTROL
+  function createMusic() {
+    const AudioContextClass =
+      window.AudioContext || window.webkitAudioContext;
 
-  const controls = player.querySelector(".film-controls");
-  const musicButton = document.createElement("button");
+    if (!AudioContextClass) return;
 
-  musicButton.textContent = "♫ MUSIC OFF";
-  musicButton.className = "film-control";
-  musicButton.type = "button";
+    if (!audioContext) {
+      audioContext = new AudioContextClass();
+    }
 
-  if (controls) {
-    controls.appendChild(musicButton);
-  }
+    if (audioContext.state === "suspended") {
+      audioContext.resume();
+    }
 
-  function playNote(frequency, time) {
-    if (!audioContext || !musicOn) return;
+    musicNodes = [];
 
-    const oscillator = audioContext.createOscillator();
-    const gain = audioContext.createGain();
+    chords.forEach((chord, chordIndex) => {
+      chord.forEach((frequency, noteIndex) => {
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
 
-    oscillator.type = "sine";
-    oscillator.frequency.value = frequency;
+        oscillator.type = "sine";
+        oscillator.frequency.value = frequency;
 
-    gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.exponentialRampToValueAtTime(0.018, time + 0.15);
-    gain.gain.exponentialRampToValueAtTime(0.0001, time + 2.8);
+        gain.gain.value = 0.0001;
 
-    oscillator.connect(gain);
-    gain.connect(audioContext.destination);
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
 
-    oscillator.start(time);
-    oscillator.stop(time + 3);
-  }
+        oscillator.start();
 
-  function musicStep() {
-    if (!musicOn || !audioContext) return;
+        const now = audioContext.currentTime;
+        const volume = noteIndex === 0 ? 0.018 : 0.010;
 
-    const chord = notes[noteIndex % notes.length];
-    const now = audioContext.currentTime;
+        gain.gain.setTargetAtTime(
+          volume,
+          now + chordIndex * 0.15,
+          1.8
+        );
 
-    chord.forEach((frequency, index) => {
-      playNote(frequency, now + index * 0.25);
+        musicNodes.push({ oscillator, gain });
+      });
     });
 
-    noteIndex++;
+    let chordPosition = 0;
 
-    musicTimer = setTimeout(musicStep, 3000);
-  }
+    window.mamflixMusicInterval = setInterval(() => {
+      if (!musicOn || !audioContext) return;
 
-  async function startMusic() {
-    try {
-      if (!audioContext) {
-        const AudioContext =
-          window.AudioContext || window.webkitAudioContext;
+      chordPosition = (chordPosition + 1) % chords.length;
 
-        if (!AudioContext) return;
+      const now = audioContext.currentTime;
 
-        audioContext = new AudioContext();
-      }
+      musicNodes.forEach((node, index) => {
+        const note = chords[chordPosition][index % 3];
 
-      await audioContext.resume();
-
-      musicOn = true;
-      musicButton.textContent = "♫ MUSIC ON";
-
-      clearTimeout(musicTimer);
-      musicStep();
-
-    } catch (error) {
-      musicOn = false;
-      musicButton.textContent = "♫ MUSIC OFF";
-    }
+        node.oscillator.frequency.setTargetAtTime(
+          note,
+          now,
+          2
+        );
+      });
+    }, 5000);
   }
 
   function stopMusic() {
-    musicOn = false;
+    if (window.mamflixMusicInterval) {
+      clearInterval(window.mamflixMusicInterval);
+      window.mamflixMusicInterval = null;
+    }
 
-    clearTimeout(musicTimer);
+    musicNodes.forEach(node => {
+      try {
+        node.gain.gain.setTargetAtTime(
+          0.0001,
+          audioContext.currentTime,
+          0.5
+        );
 
-    musicButton.textContent = "♫ MUSIC OFF";
+        node.oscillator.stop(audioContext.currentTime + 2);
+      } catch (error) {
+        // An already stopped oscillator needs no further action.
+      }
+    });
+
+    musicNodes = [];
   }
 
-  musicButton.addEventListener("click", () => {
+  function toggleMusic() {
     if (musicOn) {
+      musicOn = false;
       stopMusic();
+      musicButton.textContent = "♫ MUSIC OFF";
     } else {
-      startMusic();
+      musicOn = true;
+      createMusic();
+      musicButton.textContent = "♫ MUSIC ON";
     }
-  });
+  }
 
-  // ACCURATE FILM PROGRESS
+  // Add the music control
+  const controls = document.querySelector(".film-controls");
 
-  function getCurrentRemaining() {
-    if (!playing) return remaining;
+  if (controls) {
+    musicButton = document.createElement("button");
+    musicButton.type = "button";
+    musicButton.className = "film-control";
+    musicButton.textContent = "♫ MUSIC OFF";
+    musicButton.addEventListener("click", toggleMusic);
+    controls.appendChild(musicButton);
+  }
 
-    const elapsed = Date.now() - startedAt;
+  function pauseAllVideos() {
+    videos.forEach(video => {
+      video.pause();
+    });
+  }
 
-    return Math.max(0, remaining - elapsed);
+  function playCurrentVideo() {
+    const activeScene = scenes[currentScene];
+    if (!activeScene) return;
+
+    const video = activeScene.querySelector(".scene-video");
+
+    if (video && video.hasAttribute("src") && video.readyState > 0) {
+      video.play().catch(() => {
+        // The film continues even if the browser blocks video autoplay.
+      });
+    }
+  }
+
+  function updateTheme(scene) {
+    const theme = scene.dataset.theme || "ivory";
+
+    player.classList.remove(
+      "theme-ivory",
+      "theme-blush",
+      "theme-champagne",
+      "theme-rose",
+      "theme-finale"
+    );
+
+    player.classList.add(`theme-${theme}`);
   }
 
   function updateProgress() {
-    const completed = durations
+    if (!progressFill) return;
+
+    const completedBefore = durations
       .slice(0, currentScene)
-      .reduce((a, b) => a + b, 0);
+      .reduce((sum, duration) => sum + duration, 0);
 
-    const timeLeft = getCurrentRemaining();
-    const elapsed = durations[currentScene] - timeLeft;
+    const elapsedInScene = durations[currentScene] - remainingTime;
+    const totalElapsed = completedBefore + elapsedInScene;
 
-    const percentage =
-      ((completed + elapsed) / totalDuration) * 100;
+    const percentage = Math.min(
+      100,
+      Math.max(0, (totalElapsed / totalDuration) * 100)
+    );
 
-    if (progressFill) {
-      progressFill.style.width =
-        `${Math.min(100, Math.max(0, percentage))}%`;
+    progressFill.style.width = `${percentage}%`;
+  }
+
+  function updateCounter() {
+    if (sceneCounter) {
+      sceneCounter.textContent = "A FILM MADE WITH LOVE";
     }
   }
 
-  function startProgress() {
+  function clearTimers() {
+    clearTimeout(sceneTimer);
     clearInterval(progressTimer);
 
+    sceneTimer = null;
+    progressTimer = null;
+  }
+
+  function startSceneClock() {
+    clearTimers();
+
+    startedAt = Date.now();
+
+    sceneTimer = setTimeout(() => {
+      nextScene();
+    }, remainingTime);
+
     progressTimer = setInterval(() => {
+      remainingTime = Math.max(
+        0,
+        remainingTime - 100
+      );
+
       updateProgress();
     }, 100);
   }
 
-  // SCENE TRANSITIONS
-
   function showScene(index) {
-    clearTimeout(timer);
-    clearInterval(progressTimer);
+    if (index < 0 || index >= scenes.length) return;
 
-    currentScene = Math.max(
-      0,
-      Math.min(index, scenes.length - 1)
-    );
+    clearTimers();
+    pauseAllVideos();
 
-    remaining = durations[currentScene];
-    startedAt = Date.now();
+    currentScene = index;
+    remainingTime = durations[currentScene];
 
-    scenes.forEach((scene, i) => {
-      scene.classList.toggle("active", i === currentScene);
+    scenes.forEach((scene, sceneIndex) => {
+      scene.classList.toggle("active", sceneIndex === currentScene);
     });
 
-    if (sceneCounter) {
-      sceneCounter.textContent = "A FILM MADE WITH LOVE";
-    }
-
+    updateTheme(scenes[currentScene]);
+    updateCounter();
     updateProgress();
 
     if (playing) {
-      timer = setTimeout(nextScene, remaining);
-      startProgress();
+      startSceneClock();
+      playCurrentVideo();
     }
   }
 
@@ -200,140 +304,157 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // PLAY
-
   function startFilm() {
-    clearTimeout(timer);
-    clearInterval(progressTimer);
-
     player.classList.add("film-open");
 
     playing = true;
 
-    if (pauseButton) {
-      pauseButton.textContent = "Ⅱ PAUSE";
+    if (currentScene === scenes.length - 1) {
+      showScene(0);
+    } else {
+      showScene(currentScene);
     }
 
     if (!musicOn) {
-      startMusic();
+      musicOn = true;
+      createMusic();
+
+      if (musicButton) {
+        musicButton.textContent = "♫ MUSIC ON";
+      }
     }
 
-    showScene(0);
+    if (pauseButton) {
+      pauseButton.textContent = "PAUSE";
+    }
   }
-
-  // PAUSE
 
   function pauseFilm() {
-    if (!playing) return;
+    if (playing) {
+      const elapsed = Date.now() - startedAt;
+      remainingTime = Math.max(0, remainingTime - elapsed);
 
-    remaining = getCurrentRemaining();
+      playing = false;
+      clearTimers();
+      pauseAllVideos();
 
-    clearTimeout(timer);
-    clearInterval(progressTimer);
-
-    playing = false;
-
-    if (pauseButton) {
-      pauseButton.textContent = "▶ RESUME";
-    }
-
-    updateProgress();
-  }
-
-  // RESUME
-
-  function resumeFilm() {
-    if (playing) return;
-
-    if (remaining <= 0) {
-      if (currentScene < scenes.length - 1) {
-        playing = true;
-        showScene(currentScene + 1);
-      } else {
-        startFilm();
+      if (audioContext && audioContext.state === "running") {
+        audioContext.suspend();
       }
 
-      return;
+      if (pauseButton) {
+        pauseButton.textContent = "RESUME";
+      }
+    } else {
+      playing = true;
+
+      if (audioContext && audioContext.state === "suspended" && musicOn) {
+        audioContext.resume();
+      }
+
+      startSceneClock();
+      playCurrentVideo();
+
+      if (pauseButton) {
+        pauseButton.textContent = "PAUSE";
+      }
     }
 
-    playing = true;
-    startedAt = Date.now();
-
-    if (pauseButton) {
-      pauseButton.textContent = "Ⅱ PAUSE";
-    }
-
-    timer = setTimeout(nextScene, remaining);
-
-    startProgress();
     updateProgress();
   }
 
-  // GO BACK
-
   function goBack() {
-    if (currentScene <= 0) return;
+    if (currentScene === 0) return;
 
     showScene(currentScene - 1);
+
+    if (pauseButton) {
+      pauseButton.textContent = playing ? "PAUSE" : "RESUME";
+    }
   }
 
-  // FILM FINALE
+  function replayFilm() {
+    playing = true;
+    player.classList.add("film-open");
+
+    showScene(0);
+
+    if (!musicOn) {
+      musicOn = true;
+      createMusic();
+
+      if (musicButton) {
+        musicButton.textContent = "♫ MUSIC ON";
+      }
+    }
+
+    if (pauseButton) {
+      pauseButton.textContent = "PAUSE";
+    }
+  }
 
   function finishFilm() {
-    clearTimeout(timer);
-    clearInterval(progressTimer);
-
     playing = false;
-    remaining = 0;
+    clearTimers();
+    pauseAllVideos();
 
-    scenes.forEach(scene => {
-      scene.classList.remove("active");
+    remainingTime = 0;
+
+    scenes.forEach((scene, index) => {
+      scene.classList.toggle("active", index === scenes.length - 1);
     });
 
-    scenes[scenes.length - 1].classList.add("active");
+    updateTheme(scenes[scenes.length - 1]);
 
     if (progressFill) {
       progressFill.style.width = "100%";
     }
 
-    if (sceneCounter) {
-      sceneCounter.textContent = "WITH ALL OUR LOVE, ALWAYS";
-    }
+    updateCounter();
 
     if (pauseButton) {
-      pauseButton.textContent = "▶ REPLAY";
+      pauseButton.textContent = "REPLAY";
     }
   }
 
-  // BUTTON EVENTS
-
+  // Main controls
   if (playButton) {
     playButton.addEventListener("click", startFilm);
   }
 
-  if (replayButton) {
-    replayButton.addEventListener("click", startFilm);
+  if (pauseButton) {
+    pauseButton.addEventListener("click", () => {
+      if (!playing && currentScene === scenes.length - 1) {
+        replayFilm();
+      } else {
+        pauseFilm();
+      }
+    });
   }
 
   if (backButton) {
     backButton.addEventListener("click", goBack);
   }
 
-  if (pauseButton) {
-    pauseButton.addEventListener("click", () => {
-      if (playing) {
-        pauseFilm();
-      } else {
-        resumeFilm();
-      }
-    });
+  if (replayButton) {
+    replayButton.addEventListener("click", replayFilm);
   }
 
-  // FOOTER YEAR
+  // Initial screen
+  scenes.forEach(scene => scene.classList.remove("active"));
 
-  const yearElement = document.getElementById("currentYear");
+  if (sceneCounter) {
+    sceneCounter.textContent = "A FILM MADE WITH LOVE";
+  }
 
-  if (yearElement) {
-    yearElement.textContent = new Date().getFullYear();
+  if (progressFill) {
+    progressFill.style.width = "0%";
+  }
+
+  // Update the footer year if one is present
+  const year = document.getElementById("currentYear");
+
+  if (year) {
+    year.textContent = new Date().getFullYear();
   }
 });

@@ -4,399 +4,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#fbf0f2">
+  <meta name="theme-color" content="#f8eef0">
   <title>MAMFLIX | A Celebration of Mam</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-
-  <div class="ambient-background" id="ambientBackground"></div>
-  <div class="floating-light light-one"></div>
-  <div class="floating-light light-two"></div>
-  <div class="floating-light light-three"></div>
-
-  <div class="floating-words" aria-hidden="true">
-    <span>grace</span>
-    <span>worship</span>
-    <span>love</span>
-    <span>purpose</span>
-    <span>beautiful</span>
-    <span>faith</span>
-  </div>
-
-  <nav class="navbar">
-    <a href="#home" class="logo">MAM<span>FLIX</span></a>
-    <span class="film-label">A FILM MADE WITH LOVE</span>
-  </nav>
+  <div class="ambient-glow"></div>
+  <div class="petals" aria-hidden="true"></div>
 
   <main>
-
-    <!-- OPENING -->
-    <section class="hero" id="home">
-      <div class="hero-glow"></div>
-
-      <div class="hero-content">
-        <p class="eyebrow">AN ORIGINAL DEDICATION</p>
-        <p class="special-edition">A CELEBRATION OF A BEAUTIFUL LIFE</p>
-
-        <h1>
-          For Mam,
-          <br>
-          <span>with love.</span>
-        </h1>
-
-        <p class="tagline">
-          Some lives are not simply lived.
-          <br>
-          They leave something beautiful behind.
-        </p>
-
-        <div class="hero-buttons">
-          <button class="btn btn-primary" id="playFilm">
-            <span class="play-icon">▶</span>
-            ENTER HER WORLD
-          </button>
-        </div>
-
-        <p class="hero-note">
-          A little something, made especially for you.
-        </p>
+    <section class="welcome" id="welcome">
+      <div class="welcome-content">
+        <p class="eyebrow">A LITTLE SOMETHING, MADE WITH LOVE</p>
+        <h1>MAM<span>FLIX</span></h1>
+        <p class="welcome-line">A celebration of a beautiful life.</p>
+        <button class="play-button" id="playButton">PLAY FILM <span>▶</span></button>
+        <p class="small-note">A moment to celebrate you, Mam.</p>
       </div>
-
-      <div class="scroll-indicator">A STORY TOLD WITH LOVE</div>
+      <div class="welcome-flower flower-one">✿</div>
+      <div class="welcome-flower flower-two">❀</div>
     </section>
 
-    <!-- CINEMATIC FILM -->
-    <section class="film-player" id="filmPlayer" aria-live="polite">
-
-      <div class="film-progress">
-        <div class="progress-track">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <p id="sceneCounter">A STORY MADE WITH LOVE</p>
+    <section class="film hidden" id="film">
+      <div class="film-top">
+        <span class="brand">MAMFLIX</span>
+        <span class="film-label">A BIRTHDAY FILM</span>
       </div>
 
-      <!-- 1. THE INTRODUCTION -->
-      <div class="film-scene active"
-           data-duration="10000"
-           data-theme="ivory">
+      <div class="progress-track"><div id="progress"></div></div>
 
-        <div class="scene-copy">
-          <p class="scene-kicker">BEHIND EVERY BEAUTIFUL STORY</p>
+      <div class="scenes">
+        <article class="scene active" data-duration="9000" data-theme="ivory">
+          <p class="eyebrow">TODAY, WE CELEBRATE</p>
+          <h2>Some lives are<br><em>beautifully written.</em></h2>
+          <p class="scene-copy">And some leave a little light wherever they go.</p>
+          <span class="ornament">✧</span>
+        </article>
 
-          <p class="scene-text">
-            Before the titles, the ministry and the moments
-            that so many people have come to know...
-          </p>
+        <article class="scene" data-duration="11000" data-theme="blush">
+          <p class="eyebrow">BEHIND THE GRACE</p>
+          <h2>A woman of<br><em>grace and strength.</em></h2>
+          <p class="scene-copy">A heart that gives, a spirit that encourages, and a life that continues to speak through love.</p>
+          <span class="ornament">❀</span>
+        </article>
 
-          <p class="scene-text">
-            There is a woman. A heart. A life.
-            And a beautiful story worth celebrating.
-          </p>
-        </div>
+        <article class="scene" data-duration="12000" data-theme="gold">
+          <p class="eyebrow">A LIFE OF WORSHIP</p>
+          <h2>If spirits had names,<br><em>yours is called worship.</em></h2>
+          <p class="scene-copy">May your worship always rise from a heart that knows the One it loves.</p>
+          <span class="ornament">✧</span>
+        </article>
+
+        <article class="scene" data-duration="13000" data-theme="rose">
+          <p class="eyebrow">THE WORD</p>
+          <h2>In spirit<br><em>and in truth.</em></h2>
+          <p class="scripture">“But the hour cometh, and now is, when the true worshippers shall worship the Father in spirit and in truth: for the Father seeketh such to worship him.”</p>
+          <p class="verse">JOHN 4:23 · KJV</p>
+        </article>
+
+        <article class="scene" data-duration="11000" data-theme="ivory">
+          <p class="eyebrow">THE JOY BEHIND THE GRACE</p>
+          <h2>There is beauty<br><em>in your joy.</em></h2>
+          <p class="scene-copy">Beyond the moments of ministry, may you always have room to laugh, dance, rest and simply enjoy the gift of life.</p>
+          <span class="ornament">❀</span>
+        </article>
+
+        <article class="scene" data-duration="12000" data-theme="blush">
+          <p class="eyebrow">A PRAYER FOR YOUR NEW YEAR</p>
+          <h2>May this year<br><em>be gentle with you.</em></h2>
+          <p class="scene-copy">May God renew your strength, deepen your joy, and fill the days ahead with His goodness.</p>
+          <span class="ornament">✧</span>
+        </article>
+
+        <article class="scene final-scene" data-duration="16000" data-theme="final">
+          <div class="final-flowers">✿　❀　✧　❀　✿</div>
+          <p class="eyebrow">WITH LOVE, ALWAYS</p>
+          <h2>Happy Birthday,<br><em>Mam.</em></h2>
+          <p class="scene-copy">May your life continue to bloom in the hands of God.</p>
+          <div class="final-flowers lower">❀　✿　❀</div>
+        </article>
       </div>
 
-      <!-- 2. THE WOMAN -->
-      <div class="film-scene"
-           data-duration="15000"
-           data-theme="blush">
-
-        <div class="scene-copy">
-          <p class="scene-kicker">THE WOMAN BEHIND THE MINISTRY</p>
-
-          <p class="scene-text">
-            Beyond the titles and responsibilities,
-            there is a woman whose life is worth celebrating.
-          </p>
-
-          <p class="scene-text">
-            Today, we celebrate not only what you do,
-            but the beautiful person you are.
-          </p>
-
-          <div class="photo-moment">
-            <img
-              src="assets/photos/WhatsApp%20Image%202026-11-20%20at%2012.36.56%20PM.jpeg"
-              class="scene-photo"
-              alt="Mam"
-              loading="lazy">
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. WORSHIP -->
-      <div class="film-scene"
-           data-duration="18000"
-           data-theme="champagne">
-
-        <div class="scene-copy">
-          <p class="scene-kicker">THE SOUND OF WORSHIP</p>
-
-          <p class="scene-text">
-            Dear Mam, I love how you bring stillness
-            into the room through the essence of your worship.
-          </p>
-
-          <p class="scene-text worship-line">
-            If spirits had names,<br>
-            yours is called worship.
-          </p>
-
-          <p class="scene-text">
-            I look up to you in the spaces of musicality
-            because you are such a role model to me, Mam.
-          </p>
-
-          <div class="photo-moment">
-            <img
-              src="assets/photos/WhatsApp%20Image%202026-11-20%20at%2012.36.47%20PM.jpeg"
-              class="scene-photo"
-              alt="Mam"
-              loading="lazy">
-          </div>
-
-          <div class="video-frame">
-            <video class="scene-video"
-                   id="singingVideo"
-                   data-video="singing"
-                   playsinline
-                   preload="metadata"></video>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4. MINISTRATION -->
-      <div class="film-scene"
-           data-duration="18000"
-           data-theme="rose">
-
-        <div class="scene-copy">
-          <p class="scene-kicker">A VESSEL OF WORSHIP</p>
-
-          <p class="scene-text">
-            There are moments when words become an offering
-            and worship becomes an expression beyond
-            what language can hold.
-          </p>
-
-          <div class="photo-moment">
-            <img
-              src="assets/photos/WhatsApp%20Image%202026-11-20%20at%2012.36.44%20PM.jpeg"
-              class="scene-photo"
-              alt="Mam"
-              loading="lazy">
-          </div>
-
-          <div class="video-frame">
-            <video class="scene-video"
-                   id="ministrationVideo"
-                   data-video="ministration"
-                   playsinline
-                   preload="metadata"></video>
-          </div>
-        </div>
-      </div>
-
-      <!-- 5. THE WORD -->
-      <div class="film-scene"
-           data-duration="18000"
-           data-theme="ivory">
-
-        <div class="scene-copy">
-          <p class="scene-kicker">THE WISDOM SHE SHARES</p>
-
-          <p class="scene-text">
-            Some voices do more than speak.
-            They teach, encourage and leave seeds
-            that continue to grow.
-          </p>
-
-          <div class="photo-moment">
-            <img
-              src="assets/photos/WhatsApp%20Image%202026-11-20%20at%2012.36.43%20PM.jpeg"
-              class="scene-photo"
-              alt="Mam"
-              loading="lazy">
-          </div>
-
-          <div class="video-frame">
-            <video class="scene-video"
-                   id="teachingVideo"
-                   data-video="teaching"
-                   playsinline
-                   preload="metadata"></video>
-          </div>
-
-          <p class="scripture-reference">JOHN 4:23–24 · KJV</p>
-
-          <p class="scripture-text">
-            But the hour cometh, and now is, when the true
-            worshippers shall worship the Father in spirit
-            and in truth.
-          </p>
-
-          <p class="scripture-text">
-            God is a Spirit: and they that worship him
-            must worship him in spirit and in truth.
-          </p>
-        </div>
-      </div>
-
-      <!-- 6. THE JOY BEHIND THE GRACE -->
-      <div class="film-scene"
-           data-duration="16000"
-           data-theme="blush">
-
-        <div class="scene-copy">
-          <p class="scene-kicker">THE JOY BEHIND THE GRACE</p>
-
-          <p class="scene-text">
-            Beyond the pulpit, beyond the ministry,
-            there is a woman who laughs, dances
-            and carries joy in her own beautiful way.
-          </p>
-
-          <div class="video-frame">
-            <video class="scene-video"
-                   id="joyVideo"
-                   data-video="joy"
-                   playsinline
-                   preload="metadata"></video>
-          </div>
-        </div>
-      </div>
-
-      <!-- 7. A TEACHING TO REMEMBER -->
-      <div class="film-scene"
-           data-duration="18000"
-           data-theme="champagne">
-
-        <div class="scene-copy">
-          <p class="scene-kicker">WORDS THAT REMAIN</p>
-
-          <p class="scene-text">
-            Some words are spoken in a moment.
-            Others stay with us long after.
-          </p>
-
-          <div class="teaching-feature">
-            <p class="feature-label">A TEACHING TO REMEMBER</p>
-            <p class="teaching-placeholder">
-              Mam's chosen teaching will be placed here.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- 8. THE LETTER -->
-      <div class="film-scene"
-           data-duration="24000"
-           data-theme="ivory">
-
-        <div class="scene-copy">
-          <p class="scene-kicker">A LETTER FROM MY HEART</p>
-
-          <h2 class="scene-text">Dear Mam,</h2>
-
-          <div class="letter-feature">
-            <p class="letter-placeholder">
-              Your personal letter will be placed here.
-              Every word, exactly as you wrote it.
-            </p>
-
-            <p class="letter-signature">With love, always.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- 9. THE POEM -->
-      <div class="film-scene"
-           data-duration="28000"
-           data-theme="rose">
-
-        <div class="scene-copy">
-          <p class="scene-kicker">WORDS I WROTE FOR YOU</p>
-
-          <h2 class="scene-text">A poem for Mam.</h2>
-
-          <div class="poem-feature">
-            <p class="poem-placeholder">
-              Your poem will have its own moment here.
-              Every line and every pause will be preserved
-              exactly as you wrote it.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- 10. GRAND FINALE -->
-      <div class="film-scene film-ending"
-           data-duration="22000"
-           data-theme="finale">
-
-        <div class="flower flower-one">✿</div>
-        <div class="flower flower-two">❀</div>
-        <div class="flower flower-three">✿</div>
-        <div class="flower flower-four">❀</div>
-        <div class="flower flower-five">✿</div>
-        <div class="flower flower-six">❀</div>
-
-        <div class="finale-content">
-
-          <img
-            src="assets/photos/WhatsApp%20Image%202026-11-20%20at%2012.36.56%20PM.jpeg"
-            class="final-photo"
-            alt="Pastor Marita Mbae">
-
-          <p class="birthday-label">
-            TODAY, AND ALWAYS, WE CELEBRATE YOU
-          </p>
-
-          <h2>Happy Birthday, Mam.</h2>
-
-          <p class="scene-text">
-            A beautiful life.<br>
-            A remarkable woman.<br>
-            A love that continues.
-          </p>
-
-          <p class="final-signature">
-            With all our love, always. ♡
-          </p>
-        </div>
-      </div>
-
-      <!-- CONTROLS -->
       <div class="film-controls">
-        <button class="film-control" id="backFilm" type="button">
-          ← BACK
-        </button>
-
-        <button class="film-control" id="pauseFilm" type="button">
-          Ⅱ PAUSE
-        </button>
-
-        <button class="film-control" id="replayFilm" type="button">
-          ↺ REPLAY
-        </button>
+        <button id="backButton" aria-label="Previous scene">←</button>
+        <button id="pauseButton">Ⅱ PAUSE</button>
+        <button id="musicButton">♫ MUSIC ON</button>
+        <button id="nextButton" aria-label="Next scene">→</button>
       </div>
-
+      <p class="control-hint">A little film, just for you.</p>
     </section>
   </main>
-
-  <footer>
-    <p>MAMFLIX ORIGINAL · MADE WITH LOVE</p>
-    <p>
-      Celebrating Pastor Marita Mbae ·
-      <span id="currentYear">2026</span>
-    </p>
-  </footer>
 
   <script src="js/main.js"></script>
 </body>

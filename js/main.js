@@ -23,13 +23,16 @@ document.addEventListener("DOMContentLoaded", () => {
   let sceneTimer = null;
   let progressTimer = null;
 
-  const durations = scenes.map(scene => {
-    return Number(scene.dataset.duration) || 12000;
-  });
+  const durations = scenes.map(scene =>
+    Number(scene.dataset.duration) || 12000
+  );
 
-  const totalDuration = durations.reduce((sum, duration) => sum + duration, 0);
+  const totalDuration = durations.reduce(
+    (sum, duration) => sum + duration,
+    0
+  );
 
-  // Expected video filenames in assets/videos/
+  // VIDEO FILES
   const videoSources = {
     singing: "assets/videos/singing.mp4",
     ministration: "assets/videos/ministration.mp4",
@@ -37,12 +40,12 @@ document.addEventListener("DOMContentLoaded", () => {
     joy: "assets/videos/joy.mp4"
   };
 
-  const videos = Array.from(document.querySelectorAll(".scene-video"));
+  const videos = Array.from(
+    document.querySelectorAll(".scene-video")
+  );
 
-  // Connect the video clips. Missing clips will simply remain hidden.
   videos.forEach(video => {
-    const videoName = video.dataset.video;
-    const source = videoSources[videoName];
+    const source = videoSources[video.dataset.video];
     const frame = video.closest(".video-frame");
 
     if (!source) {
@@ -62,11 +65,12 @@ document.addEventListener("DOMContentLoaded", () => {
     video.load();
   });
 
-  // Ambient music
+  // AMBIENT MUSIC
   let audioContext = null;
   let musicOn = false;
   let musicButton = null;
   let musicNodes = [];
+  let musicInterval = null;
 
   const chords = [
     [261.63, 329.63, 392.00],
@@ -89,74 +93,68 @@ document.addEventListener("DOMContentLoaded", () => {
       audioContext.resume();
     }
 
-    musicNodes = [];
+    if (musicNodes.length > 0) return;
 
-    chords.forEach((chord, chordIndex) => {
-      chord.forEach((frequency, noteIndex) => {
-        const oscillator = audioContext.createOscillator();
-        const gain = audioContext.createGain();
+    chords[0].forEach((frequency, index) => {
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
 
-        oscillator.type = "sine";
-        oscillator.frequency.value = frequency;
+      oscillator.type = "sine";
+      oscillator.frequency.value = frequency;
+      gain.gain.value = 0.0001;
 
-        gain.gain.value = 0.0001;
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
 
-        oscillator.connect(gain);
-        gain.connect(audioContext.destination);
+      oscillator.start();
 
-        oscillator.start();
+      gain.gain.setTargetAtTime(
+        index === 0 ? 0.018 : 0.010,
+        audioContext.currentTime,
+        2
+      );
 
-        const now = audioContext.currentTime;
-        const volume = noteIndex === 0 ? 0.018 : 0.010;
-
-        gain.gain.setTargetAtTime(
-          volume,
-          now + chordIndex * 0.15,
-          1.8
-        );
-
-        musicNodes.push({ oscillator, gain });
-      });
+      musicNodes.push({ oscillator, gain });
     });
 
     let chordPosition = 0;
 
-    window.mamflixMusicInterval = setInterval(() => {
-      if (!musicOn || !audioContext) return;
+    musicInterval = setInterval(() => {
+      if (!musicOn || !audioContext || musicNodes.length === 0) {
+        return;
+      }
 
       chordPosition = (chordPosition + 1) % chords.length;
 
-      const now = audioContext.currentTime;
-
       musicNodes.forEach((node, index) => {
-        const note = chords[chordPosition][index % 3];
-
         node.oscillator.frequency.setTargetAtTime(
-          note,
-          now,
+          chords[chordPosition][index],
+          audioContext.currentTime,
           2
         );
       });
-    }, 5000);
+    }, 6500);
   }
 
   function stopMusic() {
-    if (window.mamflixMusicInterval) {
-      clearInterval(window.mamflixMusicInterval);
-      window.mamflixMusicInterval = null;
+    if (musicInterval) {
+      clearInterval(musicInterval);
+      musicInterval = null;
     }
+
+    if (!audioContext) return;
 
     musicNodes.forEach(node => {
       try {
         node.gain.gain.setTargetAtTime(
           0.0001,
           audioContext.currentTime,
-          0.5
+          0.6
         );
 
         node.oscillator.stop(audioContext.currentTime + 2);
       } catch (error) {
-        // An already stopped oscillator needs no further action.
+        // Already stopped.
       }
     });
 
@@ -164,18 +162,28 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function toggleMusic() {
+    musicOn = !musicOn;
+
     if (musicOn) {
-      musicOn = false;
-      stopMusic();
-      musicButton.textContent = "♫ MUSIC OFF";
-    } else {
-      musicOn = true;
       createMusic();
+
+      if (audioContext && audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+
       musicButton.textContent = "♫ MUSIC ON";
+    } else {
+      stopMusic();
+
+      if (audioContext && audioContext.state === "running") {
+        audioContext.suspend();
+      }
+
+      musicButton.textContent = "♫ MUSIC OFF";
     }
   }
 
-  // Add the music control
+  // ADD MUSIC BUTTON
   const controls = document.querySelector(".film-controls");
 
   if (controls) {
@@ -187,25 +195,26 @@ document.addEventListener("DOMContentLoaded", () => {
     controls.appendChild(musicButton);
   }
 
+  // VIDEO CONTROL
   function pauseAllVideos() {
-    videos.forEach(video => {
-      video.pause();
-    });
+    videos.forEach(video => video.pause());
   }
 
   function playCurrentVideo() {
     const activeScene = scenes[currentScene];
+
     if (!activeScene) return;
 
     const video = activeScene.querySelector(".scene-video");
 
     if (video && video.hasAttribute("src") && video.readyState > 0) {
       video.play().catch(() => {
-        // The film continues even if the browser blocks video autoplay.
+        // The film continues if autoplay is blocked.
       });
     }
   }
 
+  // SCENE BACKGROUNDS
   function updateTheme(scene) {
     const theme = scene.dataset.theme || "ivory";
 
@@ -220,6 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
     player.classList.add(`theme-${theme}`);
   }
 
+  // PROGRESS BAR
   function updateProgress() {
     if (!progressFill) return;
 
@@ -228,6 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .reduce((sum, duration) => sum + duration, 0);
 
     const elapsedInScene = durations[currentScene] - remainingTime;
+
     const totalElapsed = completedBefore + elapsedInScene;
 
     const percentage = Math.min(
@@ -244,6 +255,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // TIMERS
   function clearTimers() {
     clearTimeout(sceneTimer);
     clearInterval(progressTimer);
@@ -262,15 +274,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }, remainingTime);
 
     progressTimer = setInterval(() => {
+      const elapsed = Date.now() - startedAt;
+
       remainingTime = Math.max(
         0,
-        remainingTime - 100
+        remainingTime - elapsed
       );
+
+      startedAt = Date.now();
 
       updateProgress();
     }, 100);
   }
 
+  // DISPLAY SCENE
   function showScene(index) {
     if (index < 0 || index >= scenes.length) return;
 
@@ -281,7 +298,10 @@ document.addEventListener("DOMContentLoaded", () => {
     remainingTime = durations[currentScene];
 
     scenes.forEach((scene, sceneIndex) => {
-      scene.classList.toggle("active", sceneIndex === currentScene);
+      scene.classList.toggle(
+        "active",
+        sceneIndex === currentScene
+      );
     });
 
     updateTheme(scenes[currentScene]);
@@ -294,6 +314,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // NEXT SCENE
   function nextScene() {
     if (!playing) return;
 
@@ -304,6 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // START FILM
   function startFilm() {
     player.classList.add("film-open");
 
@@ -325,25 +347,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (pauseButton) {
-      pauseButton.textContent = "PAUSE";
+      pauseButton.textContent = "Ⅱ PAUSE";
     }
   }
 
+  // PAUSE AND RESUME
   function pauseFilm() {
     if (playing) {
       const elapsed = Date.now() - startedAt;
-      remainingTime = Math.max(0, remainingTime - elapsed);
+
+      remainingTime = Math.max(
+        0,
+        remainingTime - elapsed
+      );
 
       playing = false;
+
       clearTimers();
       pauseAllVideos();
 
-      if (audioContext && audioContext.state === "running") {
+      if (audioContext && audioContext.state === "running" && musicOn) {
         audioContext.suspend();
       }
 
       if (pauseButton) {
-        pauseButton.textContent = "RESUME";
+        pauseButton.textContent = "▶ RESUME";
       }
     } else {
       playing = true;
@@ -356,25 +384,28 @@ document.addEventListener("DOMContentLoaded", () => {
       playCurrentVideo();
 
       if (pauseButton) {
-        pauseButton.textContent = "PAUSE";
+        pauseButton.textContent = "Ⅱ PAUSE";
       }
     }
 
     updateProgress();
   }
 
+  // GO BACK
   function goBack() {
     if (currentScene === 0) return;
 
     showScene(currentScene - 1);
 
     if (pauseButton) {
-      pauseButton.textContent = playing ? "PAUSE" : "RESUME";
+      pauseButton.textContent = playing ? "Ⅱ PAUSE" : "▶ RESUME";
     }
   }
 
+  // REPLAY
   function replayFilm() {
     playing = true;
+
     player.classList.add("film-open");
 
     showScene(0);
@@ -388,23 +419,33 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    if (audioContext && audioContext.state === "suspended") {
+      audioContext.resume();
+    }
+
     if (pauseButton) {
-      pauseButton.textContent = "PAUSE";
+      pauseButton.textContent = "Ⅱ PAUSE";
     }
   }
 
+  // END OF FILM
   function finishFilm() {
     playing = false;
+
     clearTimers();
     pauseAllVideos();
 
     remainingTime = 0;
+    currentScene = scenes.length - 1;
 
     scenes.forEach((scene, index) => {
-      scene.classList.toggle("active", index === scenes.length - 1);
+      scene.classList.toggle(
+        "active",
+        index === currentScene
+      );
     });
 
-    updateTheme(scenes[scenes.length - 1]);
+    updateTheme(scenes[currentScene]);
 
     if (progressFill) {
       progressFill.style.width = "100%";
@@ -413,11 +454,11 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCounter();
 
     if (pauseButton) {
-      pauseButton.textContent = "REPLAY";
+      pauseButton.textContent = "↺ REPLAY";
     }
   }
 
-  // Main controls
+  // BUTTON EVENTS
   if (playButton) {
     playButton.addEventListener("click", startFilm);
   }
@@ -440,7 +481,7 @@ document.addEventListener("DOMContentLoaded", () => {
     replayButton.addEventListener("click", replayFilm);
   }
 
-  // Initial screen
+  // INITIAL SCREEN
   scenes.forEach(scene => scene.classList.remove("active"));
 
   if (sceneCounter) {
@@ -451,7 +492,7 @@ document.addEventListener("DOMContentLoaded", () => {
     progressFill.style.width = "0%";
   }
 
-  // Update the footer year if one is present
+  // FOOTER YEAR
   const year = document.getElementById("currentYear");
 
   if (year) {

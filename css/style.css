@@ -34,7 +34,7 @@ button {
   font: inherit;
 }
 
-/* GLOBAL ATMOSPHERE */
+/* AMBIENT BACKGROUND */
 
 .ambient-background {
   position: fixed;
@@ -88,7 +88,7 @@ button {
   to { transform: translate3d(35px,-30px,0) scale(1.15); }
 }
 
-/* FLOATING LETTERS */
+/* FLOATING WORDS */
 
 .floating-words {
   position: fixed;
@@ -108,40 +108,12 @@ button {
   animation: wordDrift 19s ease-in-out infinite alternate;
 }
 
-.floating-words span:nth-child(1) {
-  top: 17%;
-  left: 8%;
-}
-
-.floating-words span:nth-child(2) {
-  top: 37%;
-  right: 9%;
-  animation-delay: -4s;
-}
-
-.floating-words span:nth-child(3) {
-  bottom: 19%;
-  left: 14%;
-  animation-delay: -8s;
-}
-
-.floating-words span:nth-child(4) {
-  top: 70%;
-  right: 16%;
-  animation-delay: -11s;
-}
-
-.floating-words span:nth-child(5) {
-  top: 11%;
-  right: 25%;
-  animation-delay: -6s;
-}
-
-.floating-words span:nth-child(6) {
-  bottom: 9%;
-  right: 38%;
-  animation-delay: -14s;
-}
+.floating-words span:nth-child(1) { top: 17%; left: 8%; }
+.floating-words span:nth-child(2) { top: 37%; right: 9%; animation-delay: -4s; }
+.floating-words span:nth-child(3) { bottom: 19%; left: 14%; animation-delay: -8s; }
+.floating-words span:nth-child(4) { top: 70%; right: 16%; animation-delay: -11s; }
+.floating-words span:nth-child(5) { top: 11%; right: 25%; animation-delay: -6s; }
+.floating-words span:nth-child(6) { bottom: 9%; right: 38%; animation-delay: -14s; }
 
 @keyframes wordDrift {
   from { transform: translateY(0) rotate(-4deg); }
@@ -212,14 +184,8 @@ button {
 }
 
 @keyframes heroAppear {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .eyebrow {
@@ -345,31 +311,26 @@ footer {
   to { opacity: 1; }
 }
 
-/* DIFFERENT SCENE WORLDS */
+/* INDIVIDUAL SCENE BACKGROUNDS */
 
 .film-player.theme-ivory {
-  background:
-    radial-gradient(ellipse at 50% 45%, #fffefa, #f8f0e9 75%);
+  background: radial-gradient(ellipse at 50% 45%, #fffefa, #f8f0e9 75%);
 }
 
 .film-player.theme-blush {
-  background:
-    radial-gradient(ellipse at 50% 40%, #fff7fa, #f3dfe7 78%);
+  background: radial-gradient(ellipse at 50% 40%, #fff7fa, #f3dfe7 78%);
 }
 
 .film-player.theme-champagne {
-  background:
-    radial-gradient(ellipse at 50% 40%, #fffdf7, #eee1ca 85%);
+  background: radial-gradient(ellipse at 50% 40%, #fffdf7, #eee1ca 85%);
 }
 
 .film-player.theme-rose {
-  background:
-    radial-gradient(ellipse at 50% 40%, #fff8fa, #ead1dc 80%);
+  background: radial-gradient(ellipse at 50% 40%, #fff8fa, #ead1dc 80%);
 }
 
 .film-player.theme-finale {
-  background:
-    radial-gradient(ellipse at 50% 35%, #fffaf6, #f1dce4 75%);
+  background: radial-gradient(ellipse at 50% 35%, #fffaf6, #f1dce4 75%);
 }
 
 /* FILM PROGRESS */
@@ -404,7 +365,7 @@ footer {
   letter-spacing: .22em;
 }
 
-/* SCENES */
+/* SCENE TRANSITIONS */
 
 .film-scene {
   position: relative;
@@ -457,7 +418,7 @@ footer {
   max-width: 680px;
   margin: 0 auto;
   color: #806b77;
-  font-family: "Cormorant Garamond",serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: clamp(24px,3vw,34px);
   font-weight: 400;
   font-style: italic;
@@ -474,6 +435,56 @@ footer {
   color: #96667d;
   font-size: clamp(33px,4.5vw,49px);
   font-weight: 500;
+}
+
+/* PHOTOGRAPH MOMENTS */
+
+.photo-moment {
+  position: relative;
+  width: min(430px, 88%);
+  margin: 30px auto 12px;
+  padding: 8px;
+  border: 1px solid rgba(197,164,119,.65);
+  background: rgba(255,255,255,.55);
+  box-shadow:
+    0 18px 55px rgba(100,65,82,.11),
+    0 3px 12px rgba(100,65,82,.05);
+  overflow: hidden;
+  animation: photoReveal 1.2s ease both;
+}
+
+.photo-moment::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  z-index: 1;
+  border: 1px solid rgba(255,255,255,.5);
+  pointer-events: none;
+}
+
+.scene-photo {
+  display: block;
+  width: 100%;
+  max-height: 36vh;
+  min-height: 180px;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 1.2s ease;
+}
+
+.photo-moment:hover .scene-photo {
+  transform: scale(1.035);
+}
+
+@keyframes photoReveal {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* VIDEO PRESENTATION */
@@ -521,41 +532,97 @@ footer {
   max-width: 650px;
   margin: 15px auto 0;
   color: #816d76;
-  font-family: "Cormorant Garamond",serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: clamp(20px,2.4vw,26px);
   font-style: italic;
   line-height: 1.55;
 }
 
-/* TEACHING AND POEM */
+/* TEACHING */
 
-.teaching-feature,
-.poem-feature {
+.teaching-feature {
   max-width: 650px;
-  margin: 28px auto;
-  padding: 23px 25px;
-  border-top: 1px solid rgba(197,164,119,.45);
-  border-bottom: 1px solid rgba(197,164,119,.45);
+  margin: 32px auto;
+  padding: 30px 28px;
+  border-top: 1px solid rgba(197,164,119,.5);
+  border-bottom: 1px solid rgba(197,164,119,.5);
+  background: rgba(255,255,255,.19);
 }
 
 .feature-label {
-  margin-bottom: 14px;
+  margin-bottom: 17px;
   color: var(--gold);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: .25em;
 }
 
-.teaching-placeholder,
-.poem-placeholder {
+.teaching-placeholder {
   color: #9a7b89;
-  font-family: "Cormorant Garamond",serif;
-  font-size: 22px;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 25px;
   font-style: italic;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
-/* CONTROLS */
+/* LETTER */
+
+.letter-feature {
+  max-width: 650px;
+  margin: 25px auto;
+  padding: 28px 32px;
+  border-top: 1px solid rgba(197,164,119,.5);
+  border-bottom: 1px solid rgba(197,164,119,.5);
+  background: rgba(255,255,255,.22);
+}
+
+.letter-placeholder {
+  color: #806b77;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(21px,2.7vw,27px);
+  font-style: italic;
+  line-height: 1.9;
+  white-space: pre-line;
+}
+
+.letter-signature {
+  margin-top: 25px;
+  color: var(--rose);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 21px;
+  font-style: italic;
+}
+
+/* POEM */
+
+.poem-feature {
+  max-width: 650px;
+  margin: 28px auto;
+  padding: 30px 28px;
+  border-top: 1px solid rgba(197,164,119,.5);
+  border-bottom: 1px solid rgba(197,164,119,.5);
+  background: rgba(255,255,255,.2);
+}
+
+.poem-placeholder {
+  color: #966b80;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(23px,3vw,30px);
+  font-style: italic;
+  line-height: 1.9;
+  white-space: pre-line;
+}
+
+/* LETTER AND POEM HEADINGS */
+
+.scene-copy h2.scene-text {
+  margin-bottom: 18px;
+  color: #96667d;
+  font-size: clamp(34px,4.5vw,46px);
+  font-weight: 400;
+}
+
+/* FILM CONTROLS */
 
 .film-controls {
   position: absolute;
@@ -590,7 +657,7 @@ footer {
   background: rgba(255,255,255,.95);
 }
 
-/* FINALE */
+/* GRAND FINALE */
 
 .film-ending {
   position: relative;
@@ -628,7 +695,7 @@ footer {
 
 .finale-content h2 {
   color: #8f5e74;
-  font-family: "Cormorant Garamond",serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: clamp(43px,6vw,68px);
   font-weight: 400;
   font-style: italic;
@@ -643,7 +710,7 @@ footer {
 .final-signature {
   margin-top: 16px;
   color: #a67b8d;
-  font-family: "Cormorant Garamond",serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 21px;
   font-style: italic;
 }
@@ -683,7 +750,6 @@ footer {
 /* RESPONSIVE */
 
 @media (max-width:700px) {
-
   .navbar {
     width: 90%;
     padding: 22px 0;
@@ -736,9 +802,31 @@ footer {
     margin-top: 18px;
   }
 
+  .photo-moment {
+    width: min(360px, 92%);
+    margin-top: 24px;
+  }
+
+  .scene-photo {
+    max-height: 30vh;
+    min-height: 150px;
+  }
+
   .scene-video {
     max-height: 30vh;
     min-height: 150px;
+  }
+
+  .teaching-feature,
+  .letter-feature,
+  .poem-feature {
+    padding: 22px 17px;
+  }
+
+  .letter-placeholder,
+  .poem-placeholder {
+    font-size: 22px;
+    line-height: 1.7;
   }
 
   .film-controls {
@@ -764,7 +852,39 @@ footer {
   .final-signature {
     font-size: 19px;
   }
+}
 
+@media (max-height:700px) {
+  .film-player {
+    padding-top: 75px;
+    padding-bottom: 85px;
+  }
+
+  .film-scene {
+    max-height: 70vh;
+  }
+
+  .scene-kicker {
+    margin-bottom: 15px;
+  }
+
+  .scene-text {
+    font-size: clamp(20px,2.5vw,28px);
+  }
+
+  .photo-moment {
+    margin-top: 18px;
+  }
+
+  .scene-photo {
+    max-height: 25vh;
+    min-height: 120px;
+  }
+
+  .final-photo {
+    height: 23vh;
+    margin-bottom: 12px;
+  }
 }
 
 @media (prefers-reduced-motion:reduce) {

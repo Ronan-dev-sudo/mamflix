@@ -1,501 +1,264 @@
 
-document.addEventListener("DOMContentLoaded", () => {
-  const scenes = Array.from(document.querySelectorAll(".film-scene"));
-  const player = document.getElementById("filmPlayer");
+const welcome = document.getElementById("welcome");
+const film = document.getElementById("film");
+const playButton = document.getElementById("playButton");
+const pauseButton = document.getElementById("pauseButton");
+const musicButton = document.getElementById("musicButton");
+const backButton = document.getElementById("backButton");
+const nextButton = document.getElementById("nextButton");
+const progress = document.getElementById("progress");
+const scenes = [...document.querySelectorAll(".scene")];
 
-  const playButton = document.getElementById("playFilm");
-  const pauseButton = document.getElementById("pauseFilm");
-  const replayButton = document.getElementById("replayFilm");
-  const backButton = document.getElementById("backFilm");
+let currentScene = 0;
+let playing = false;
+let musicEnabled = false;
+let remaining = 0;
+let sceneStartedAt = 0;
+let sceneTimer = null;
+let progressTimer = null;
+let audioContext = null;
+let masterGain = null;
+let musicNodes = [];
+let chordTimer = null;
 
-  const progressFill = document.getElementById("progressFill");
-  const sceneCounter = document.getElementById("sceneCounter");
+const durations = scenes.map(scene =>
+  Number(scene.dataset.duration) || 10000
+);
 
-  if (!player || scenes.length === 0) {
-    console.error("MAMFLIX could not find its film scenes.");
-    return;
+function makePetals() {
+  const container = document.querySelector(".petals");
+  const symbols = ["✿", "❀", "✧", "·"];
+
+  for (let i = 0; i < 18; i++) {
+    const petal = document.createElement("span");
+    petal.className = "petal";
+    petal.textContent = symbols[i % symbols.length];
+    petal.style.left = Math.random() * 100 + "%";
+    petal.style.animationDuration = (16 + Math.random() * 18) + "s";
+    petal.style.animationDelay = (-Math.random() * 25) + "s";
+    petal.style.fontSize = (10 + Math.random() * 13) + "px";
+    container.appendChild(petal);
   }
+}
 
-  let currentScene = 0;
-  let playing = false;
-  let remainingTime = 0;
-  let startedAt = 0;
-  let sceneTimer = null;
-  let progressTimer = null;
+function showScene(index) {
+  currentScene = Math.max(0, Math.min(index, scenes.length - 1));
 
-  const durations = scenes.map(scene =>
-    Number(scene.dataset.duration) || 12000
-  );
-
-  const totalDuration = durations.reduce(
-    (sum, duration) => sum + duration,
-    0
-  );
-
-  // VIDEO FILES
-  const videoSources = {
-    singing: "assets/videos/singing.mp4",
-    ministration: "assets/videos/ministration.mp4",
-    teaching: "assets/videos/teaching.mp4",
-    joy: "assets/videos/joy.mp4"
-  };
-
-  const videos = Array.from(
-    document.querySelectorAll(".scene-video")
-  );
-
-  videos.forEach(video => {
-    const source = videoSources[video.dataset.video];
-    const frame = video.closest(".video-frame");
-
-    if (!source) {
-      if (frame) frame.hidden = true;
-      return;
-    }
-
-    video.addEventListener("error", () => {
-      if (frame) frame.hidden = true;
-    });
-
-    video.addEventListener("loadeddata", () => {
-      if (frame) frame.hidden = false;
-    });
-
-    video.src = source;
-    video.load();
+  scenes.forEach((scene, i) => {
+    scene.classList.toggle("active", i === currentScene);
   });
 
-  // AMBIENT MUSIC
-  let audioContext = null;
-  let musicOn = false;
-  let musicButton = null;
-  let musicNodes = [];
-  let musicInterval = null;
+  film.className = "film theme-" + scenes[currentScene].dataset.theme;
+  progress.style.width = ((currentScene / scenes.length) * 100) + "%";
+  remaining = durations[currentScene];
 
-  const chords = [
-    [261.63, 329.63, 392.00],
-    [220.00, 261.63, 329.63],
-    [174.61, 220.00, 261.63],
-    [196.00, 246.94, 293.66]
-  ];
+  if (playing) startSceneClock();
+}
 
-  function createMusic() {
-    const AudioContextClass =
-      window.AudioContext || window.webkitAudioContext;
+function clearClock() {
+  clearTimeout(sceneTimer);
+  clearInterval(progressTimer);
+  sceneTimer = null;
+  progressTimer = null;
+}
 
-    if (!AudioContextClass) return;
+function startSceneClock() {
+  clearClock();
 
-    if (!audioContext) {
-      audioContext = new AudioContextClass();
-    }
+  sceneStartedAt = Date.now();
+  const startingTime = remaining;
 
-    if (audioContext.state === "suspended") {
-      audioContext.resume();
-    }
+  progressTimer = setInterval(() => {
+    const elapsed = Date.now() - sceneStartedAt;
+    const left = Math.max(0, startingTime - elapsed);
+    const completed = (durations[currentScene] - left) / durations[currentScene];
 
-    if (musicNodes.length > 0) return;
+    progress.style.width =
+      ((currentScene + completed) / scenes.length * 100) + "%";
+  }, 100);
 
-    chords[0].forEach((frequency, index) => {
-      const oscillator = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-
-      oscillator.type = "sine";
-      oscillator.frequency.value = frequency;
-      gain.gain.value = 0.0001;
-
-      oscillator.connect(gain);
-      gain.connect(audioContext.destination);
-
-      oscillator.start();
-
-      gain.gain.setTargetAtTime(
-        index === 0 ? 0.018 : 0.010,
-        audioContext.currentTime,
-        2
-      );
-
-      musicNodes.push({ oscillator, gain });
-    });
-
-    let chordPosition = 0;
-
-    musicInterval = setInterval(() => {
-      if (!musicOn || !audioContext || musicNodes.length === 0) {
-        return;
-      }
-
-      chordPosition = (chordPosition + 1) % chords.length;
-
-      musicNodes.forEach((node, index) => {
-        node.oscillator.frequency.setTargetAtTime(
-          chords[chordPosition][index],
-          audioContext.currentTime,
-          2
-        );
-      });
-    }, 6500);
-  }
-
-  function stopMusic() {
-    if (musicInterval) {
-      clearInterval(musicInterval);
-      musicInterval = null;
-    }
-
-    if (!audioContext) return;
-
-    musicNodes.forEach(node => {
-      try {
-        node.gain.gain.setTargetAtTime(
-          0.0001,
-          audioContext.currentTime,
-          0.6
-        );
-
-        node.oscillator.stop(audioContext.currentTime + 2);
-      } catch (error) {
-        // Already stopped.
-      }
-    });
-
-    musicNodes = [];
-  }
-
-  function toggleMusic() {
-    musicOn = !musicOn;
-
-    if (musicOn) {
-      createMusic();
-
-      if (audioContext && audioContext.state === "suspended") {
-        audioContext.resume();
-      }
-
-      musicButton.textContent = "♫ MUSIC ON";
-    } else {
-      stopMusic();
-
-      if (audioContext && audioContext.state === "running") {
-        audioContext.suspend();
-      }
-
-      musicButton.textContent = "♫ MUSIC OFF";
-    }
-  }
-
-  // ADD MUSIC BUTTON
-  const controls = document.querySelector(".film-controls");
-
-  if (controls) {
-    musicButton = document.createElement("button");
-    musicButton.type = "button";
-    musicButton.className = "film-control";
-    musicButton.textContent = "♫ MUSIC OFF";
-    musicButton.addEventListener("click", toggleMusic);
-    controls.appendChild(musicButton);
-  }
-
-  // VIDEO CONTROL
-  function pauseAllVideos() {
-    videos.forEach(video => video.pause());
-  }
-
-  function playCurrentVideo() {
-    const activeScene = scenes[currentScene];
-
-    if (!activeScene) return;
-
-    const video = activeScene.querySelector(".scene-video");
-
-    if (video && video.hasAttribute("src") && video.readyState > 0) {
-      video.play().catch(() => {
-        // The film continues if autoplay is blocked.
-      });
-    }
-  }
-
-  // SCENE BACKGROUNDS
-  function updateTheme(scene) {
-    const theme = scene.dataset.theme || "ivory";
-
-    player.classList.remove(
-      "theme-ivory",
-      "theme-blush",
-      "theme-champagne",
-      "theme-rose",
-      "theme-finale"
-    );
-
-    player.classList.add(`theme-${theme}`);
-  }
-
-  // PROGRESS BAR
-  function updateProgress() {
-    if (!progressFill) return;
-
-    const completedBefore = durations
-      .slice(0, currentScene)
-      .reduce((sum, duration) => sum + duration, 0);
-
-    const elapsedInScene = durations[currentScene] - remainingTime;
-
-    const totalElapsed = completedBefore + elapsedInScene;
-
-    const percentage = Math.min(
-      100,
-      Math.max(0, (totalElapsed / totalDuration) * 100)
-    );
-
-    progressFill.style.width = `${percentage}%`;
-  }
-
-  function updateCounter() {
-    if (sceneCounter) {
-      sceneCounter.textContent = "A FILM MADE WITH LOVE";
-    }
-  }
-
-  // TIMERS
-  function clearTimers() {
-    clearTimeout(sceneTimer);
-    clearInterval(progressTimer);
-
-    sceneTimer = null;
-    progressTimer = null;
-  }
-
-  function startSceneClock() {
-    clearTimers();
-
-    startedAt = Date.now();
-
-    sceneTimer = setTimeout(() => {
-      nextScene();
-    }, remainingTime);
-
-    progressTimer = setInterval(() => {
-      const elapsed = Date.now() - startedAt;
-
-      remainingTime = Math.max(
-        0,
-        remainingTime - elapsed
-      );
-
-      startedAt = Date.now();
-
-      updateProgress();
-    }, 100);
-  }
-
-  // DISPLAY SCENE
-  function showScene(index) {
-    if (index < 0 || index >= scenes.length) return;
-
-    clearTimers();
-    pauseAllVideos();
-
-    currentScene = index;
-    remainingTime = durations[currentScene];
-
-    scenes.forEach((scene, sceneIndex) => {
-      scene.classList.toggle(
-        "active",
-        sceneIndex === currentScene
-      );
-    });
-
-    updateTheme(scenes[currentScene]);
-    updateCounter();
-    updateProgress();
-
-    if (playing) {
-      startSceneClock();
-      playCurrentVideo();
-    }
-  }
-
-  // NEXT SCENE
-  function nextScene() {
-    if (!playing) return;
-
+  sceneTimer = setTimeout(() => {
     if (currentScene < scenes.length - 1) {
       showScene(currentScene + 1);
     } else {
       finishFilm();
     }
-  }
+  }, remaining);
+}
 
-  // START FILM
-  function startFilm() {
-    player.classList.add("film-open");
+function pauseFilm() {
+  if (!playing) return;
 
-    playing = true;
+  remaining = Math.max(0, remaining - (Date.now() - sceneStartedAt));
+  playing = false;
+  clearClock();
+  pauseButton.textContent = "▶ RESUME";
+}
 
-    if (currentScene === scenes.length - 1) {
-      showScene(0);
-    } else {
-      showScene(currentScene);
-    }
+function resumeFilm() {
+  if (playing) return;
 
-    if (!musicOn) {
-      musicOn = true;
-      createMusic();
+  playing = true;
+  pauseButton.textContent = "Ⅱ PAUSE";
+  startSceneClock();
+}
 
-      if (musicButton) {
-        musicButton.textContent = "♫ MUSIC ON";
-      }
-    }
+function finishFilm() {
+  playing = false;
+  clearClock();
+  pauseButton.textContent = "↺ REPLAY";
+  progress.style.width = "100%";
+}
 
-    if (pauseButton) {
-      pauseButton.textContent = "Ⅱ PAUSE";
-    }
-  }
+function startFilm() {
+  welcome.classList.add("hidden");
+  film.classList.remove("hidden");
 
-  // PAUSE AND RESUME
-  function pauseFilm() {
-    if (playing) {
-      const elapsed = Date.now() - startedAt;
-
-      remainingTime = Math.max(
-        0,
-        remainingTime - elapsed
-      );
-
-      playing = false;
-
-      clearTimers();
-      pauseAllVideos();
-
-      if (audioContext && audioContext.state === "running" && musicOn) {
-        audioContext.suspend();
-      }
-
-      if (pauseButton) {
-        pauseButton.textContent = "▶ RESUME";
-      }
-    } else {
-      playing = true;
-
-      if (audioContext && audioContext.state === "suspended" && musicOn) {
-        audioContext.resume();
-      }
-
-      startSceneClock();
-      playCurrentVideo();
-
-      if (pauseButton) {
-        pauseButton.textContent = "Ⅱ PAUSE";
-      }
-    }
-
-    updateProgress();
-  }
-
-  // GO BACK
-  function goBack() {
-    if (currentScene === 0) return;
-
-    showScene(currentScene - 1);
-
-    if (pauseButton) {
-      pauseButton.textContent = playing ? "Ⅱ PAUSE" : "▶ RESUME";
-    }
-  }
-
-  // REPLAY
-  function replayFilm() {
-    playing = true;
-
-    player.classList.add("film-open");
-
+  if (currentScene === scenes.length - 1 && !playing) {
     showScene(0);
+  }
 
-    if (!musicOn) {
-      musicOn = true;
-      createMusic();
+  if (!musicEnabled) {
+    musicEnabled = true;
+    startMusic();
+    musicButton.textContent = "♫ MUSIC ON";
+  }
 
-      if (musicButton) {
-        musicButton.textContent = "♫ MUSIC ON";
-      }
+  if (!playing) {
+    playing = true;
+    pauseButton.textContent = "Ⅱ PAUSE";
+    startSceneClock();
+  }
+}
+
+function goNext() {
+  if (currentScene < scenes.length - 1) {
+    showScene(currentScene + 1);
+  } else {
+    finishFilm();
+  }
+}
+
+function goBack() {
+  if (currentScene > 0) {
+    showScene(currentScene - 1);
+  }
+}
+
+// Soft ambient soundtrack: slow sustained chords, no percussion or beat.
+const chords = [
+  [261.63, 329.63, 392.00, 523.25],
+  [220.00, 261.63, 329.63, 440.00],
+  [174.61, 220.00, 261.63, 349.23],
+  [196.00, 246.94, 293.66, 392.00]
+];
+
+function playChord(chord) {
+  if (!audioContext || !masterGain || !musicEnabled) return;
+
+  const now = audioContext.currentTime;
+
+  musicNodes.forEach(node => {
+    try { node.stop(now + 1.5); } catch (e) {}
+  });
+  musicNodes = [];
+
+  chord.forEach((frequency, index) => {
+    const oscillator = audioContext.createOscillator();
+    const volume = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+
+    oscillator.type = index === 0 ? "sine" : "triangle";
+    oscillator.frequency.value = frequency;
+
+    filter.type = "lowpass";
+    filter.frequency.value = 900;
+
+    const level = index === 0 ? 0.075 : 0.025;
+    volume.gain.setValueAtTime(0.0001, now);
+    volume.gain.exponentialRampToValueAtTime(level, now + 2.5);
+    volume.gain.setTargetAtTime(0.0001, now + 7, 1.5);
+
+    oscillator.connect(filter);
+    filter.connect(volume);
+    volume.connect(masterGain);
+
+    oscillator.start(now);
+    oscillator.stop(now + 12);
+
+    musicNodes.push(oscillator);
+  });
+}
+
+async function startMusic() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return;
+
+  if (!audioContext) {
+    audioContext = new AudioContextClass();
+    masterGain = audioContext.createGain();
+    masterGain.gain.value = 0.35;
+    masterGain.connect(audioContext.destination);
+  }
+
+  await audioContext.resume();
+
+  let chordIndex = 0;
+  playChord(chords[chordIndex]);
+
+  clearInterval(chordTimer);
+  chordTimer = setInterval(() => {
+    chordIndex = (chordIndex + 1) % chords.length;
+    playChord(chords[chordIndex]);
+  }, 10000);
+}
+
+async function stopMusic() {
+  musicEnabled = false;
+  clearInterval(chordTimer);
+
+  if (masterGain && audioContext) {
+    masterGain.gain.setTargetAtTime(
+      0.0001,
+      audioContext.currentTime,
+      0.4
+    );
+  }
+
+  setTimeout(() => {
+    if (!musicEnabled && audioContext) {
+      audioContext.suspend();
     }
+  }, 1800);
 
-    if (audioContext && audioContext.state === "suspended") {
-      audioContext.resume();
-    }
+  musicButton.textContent = "♫ MUSIC OFF";
+}
 
-    if (pauseButton) {
-      pauseButton.textContent = "Ⅱ PAUSE";
-    }
-  }
+playButton.addEventListener("click", startFilm);
 
-  // END OF FILM
-  function finishFilm() {
-    playing = false;
-
-    clearTimers();
-    pauseAllVideos();
-
-    remainingTime = 0;
-    currentScene = scenes.length - 1;
-
-    scenes.forEach((scene, index) => {
-      scene.classList.toggle(
-        "active",
-        index === currentScene
-      );
-    });
-
-    updateTheme(scenes[currentScene]);
-
-    if (progressFill) {
-      progressFill.style.width = "100%";
-    }
-
-    updateCounter();
-
-    if (pauseButton) {
-      pauseButton.textContent = "↺ REPLAY";
-    }
-  }
-
-  // BUTTON EVENTS
-  if (playButton) {
-    playButton.addEventListener("click", startFilm);
-  }
-
-  if (pauseButton) {
-    pauseButton.addEventListener("click", () => {
-      if (!playing && currentScene === scenes.length - 1) {
-        replayFilm();
-      } else {
-        pauseFilm();
-      }
-    });
-  }
-
-  if (backButton) {
-    backButton.addEventListener("click", goBack);
-  }
-
-  if (replayButton) {
-    replayButton.addEventListener("click", replayFilm);
-  }
-
-  // INITIAL SCREEN
-  scenes.forEach(scene => scene.classList.remove("active"));
-
-  if (sceneCounter) {
-    sceneCounter.textContent = "A FILM MADE WITH LOVE";
-  }
-
-  if (progressFill) {
-    progressFill.style.width = "0%";
-  }
-
-  // FOOTER YEAR
-  const year = document.getElementById("currentYear");
-
-  if (year) {
-    year.textContent = new Date().getFullYear();
+pauseButton.addEventListener("click", () => {
+  if (playing) {
+    pauseFilm();
+  } else if (currentScene === scenes.length - 1) {
+    showScene(0);
+    resumeFilm();
+  } else {
+    resumeFilm();
   }
 });
+
+nextButton.addEventListener("click", goNext);
+backButton.addEventListener("click", goBack);
+
+musicButton.addEventListener("click", async () => {
+  if (musicEnabled) {
+    stopMusic();
+  } else {
+    musicEnabled = true;
+    await startMusic();
+    musicButton.textContent = "♫ MUSIC ON";
+  }
+});
+
+makePetals();
+showScene(0);
